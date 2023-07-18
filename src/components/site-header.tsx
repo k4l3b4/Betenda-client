@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Plus } from "lucide-react"
+import { useUserContext } from "@/context/user-context"
 
 export function SiteHeader() {
+  const { User } = useUserContext()
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between space-x-4 sm:space-x-0">
@@ -34,15 +36,18 @@ export function SiteHeader() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger className="w-fit" asChild>
-                <Button className="w-fit" size="icon" variant={null}>
+                <Button className="w-fit rounded-full" size="icon" variant={null}>
                   <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
+                    <AvatarFallback>{`${User?.first_name?.substr(0,1)}${User?.last_name?.substr(0,1)}`}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="mr-5 w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <p>{`${User?.first_name} ${User?.last_name}` ?? ""}</p>
+                  <p className="text-muted-foreground text-sm">@{User?.first_name}</p>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
