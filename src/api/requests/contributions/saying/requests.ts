@@ -9,6 +9,6 @@ export const registerSaying = async (values: CreateSayingType) => {
 
 
 export const updateSaying = async ({ values, id }: { values: CreateSayingType, id: number }) => {
-    const response = await axiosInstance.post(`contributions/saying?id=${id}`, values)
+    const response = await axiosInstance.patch(`contributions/saying?id=${id}`, values)
     return response?.data
 }

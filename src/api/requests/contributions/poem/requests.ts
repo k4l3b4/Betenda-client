@@ -9,6 +9,6 @@ export const registerPoem = async (values: CreatePoemType) => {
 
 
 export const updatePoem = async ({ values, id }: { values: CreatePoemType, id: number }) => {
-    const response = await axiosInstance.post(`contributions/poem?id=${id}`, values)
+    const response = await axiosInstance.patch(`contributions/poem?id=${id}`, values)
     return response?.data
 }

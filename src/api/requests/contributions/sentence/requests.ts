@@ -9,6 +9,6 @@ export const registerSentence = async (values: CreateSentenceType) => {
 
 
 export const updateSentence = async ({ values, id }: { values: CreateSentenceType, id: number }) => {
-    const response = await axiosInstance.post(`contributions/sentence?id=${id}`, values)
+    const response = await axiosInstance.patch(`contributions/sentence?id=${id}`, values)
     return response?.data
 }

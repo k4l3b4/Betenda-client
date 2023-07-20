@@ -9,6 +9,6 @@ export const registerWord = async (values: CreateWordType) => {
 
 
 export const updateWord = async ({ values, id }: { values: CreateWordType, id: number }) => {
-    const response = await axiosInstance.post(`contributions/word?id=${id}`, values)
+    const response = await axiosInstance.patch(`contributions/word?id=${id}`, values)
     return response?.data
 }
