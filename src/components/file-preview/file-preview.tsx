@@ -59,7 +59,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, o
                 previewUrl ? (
                     <>
                         {file.type.startsWith('image/') ? (
-                            <Image className='rounded-md object-cover max-h-[244px] max-w-[264]' src={previewUrl} alt="Preview" width="600" height="500" style={{ width: '100%', height: 'auto' }} />
+                            <Image className='rounded-md object-cover h-auto max-w-[264]' src={previewUrl} alt="Preview" width="600" height="500" style={{ width: '100%', height: 'auto' }} />
                         ) : (
                             <video
                                 className="rounded-md object-cover max-h-[244px] max-w-[264]"
