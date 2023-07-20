@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { FC } from 'react';
 
 const Meta: FC<MetaTypes> = ({ title, desc, image, robots, url, tags, author, published_date, edited_date, type = "Website" }) => {
-    const commonTitle = title ? `${title}` : "Betenda"
+    const commonTitle = title ? `${title} - Betenda` : "Betenda"
     const commonDesc = desc ?? "Betenda is a private community of ethiopian gurage speakers to discuss about any and everything related to the gurage language and community"
 
     return (
