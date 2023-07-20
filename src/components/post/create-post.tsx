@@ -5,7 +5,7 @@ import * as z from "zod"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { Mic, Paperclip } from "lucide-react"
+import { Mic, Paperclip, SmilePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUserContext } from "@/context/user-context";
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -54,7 +54,7 @@ const FormSchema = z.object({
 })
 
 
-const CreatePost: React.FC = () => {
+const CreatePost = ({ placeholder = "Anything new happened?, anything on your mind?", parent_id = undefined }: { placeholder?: string, parent_id?: number }) => {
   const queryClient = useQueryClient()
   const { User } = useUserContext()
   const { mutate, isLoading, isError } = useMutation({
@@ -132,19 +132,19 @@ const CreatePost: React.FC = () => {
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    mutate({ values: data })
+    mutate({ values: data, parent: parent_id })
   }
 
 
   return (
-    <Card className="flex w-[550px] flex-col gap-y-4 p-2" id="create-post">
+    <Card className="flex w-[650px] flex-col gap-y-4 p-4 my-4 bg-foreground" id="create-post">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Avatar className="mb-3">
+        <form className="flex w-full items-start" onSubmit={form.handleSubmit(onSubmit)}>
+          <Avatar className="mt-1 mr-2">
             <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
             <AvatarFallback>{`${User?.first_name?.substr(0, 1)}${User?.last_name?.substr(0, 1)}`}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="w-full">
             <FormField
               control={form.control}
               name="content"
@@ -154,7 +154,7 @@ const CreatePost: React.FC = () => {
                   <FormControl>
                     <Textarea
                       className="max-h-44 border-none text-lg placeholder:opacity-50 focus:ring-0 focus-visible:ring-0"
-                      placeholder={`Hello ${User?.first_name}, anything new happened?, anything on your mind?`}
+                      placeholder={placeholder}
                       {...field}
                     />
 
@@ -199,6 +199,9 @@ const CreatePost: React.FC = () => {
 
                 <Button type="button" variant={null} size="icon">
                   <Mic className="h-5 w-5" />
+                </Button>
+                <Button type="button" variant={null} size="icon">
+                  <SmilePlus className="h-5 w-5" />
                 </Button>
               </div>
               <Button disabled={isLoading} type="submit" className="px-6">{isLoading ? `Posting... ${progress ? `${progress}%` : ""}` : "Post"}</Button>
