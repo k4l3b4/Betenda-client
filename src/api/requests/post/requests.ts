@@ -8,7 +8,12 @@ export const getPosts = async ({ pageParam = 1 }: { pageParam?: number }) => {
     return response.data
 }
 
-export const createPost = async ({ values, parent }: { values: CreatePostType, parent?: number | undefined }) => {
+export const getPostsByTag = async ({ tag, pageParam = 1 }: { tag: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`)
+    return response.data
+}
+
+export const createPost = async ({ values, parent = undefined }: { values: CreatePostType, parent?: number | undefined }) => {
     const data = new FormData()
     { values?.content ? data.append('content', values?.content) : undefined }
     { values?.media ? data.append('media', values?.media, values?.media?.name) : undefined }
@@ -16,10 +21,10 @@ export const createPost = async ({ values, parent }: { values: CreatePostType, p
     const response = await axiosInstance.post(`posts/post${parent ? `?parent_id=${parent}` : ''}`, data, {
         onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
-              (progressEvent?.loaded * 100) / progressEvent?.total
+                (progressEvent?.loaded * 100) / progressEvent?.total
             );
             uploadProgress['create-post'] = percentCompleted; // Update the upload progress for the given key
-          },
+        },
         timeout: 90000,
         headers: {
             'Content-Type': values.media?.type
@@ -45,6 +50,7 @@ export const updatePost = async ({ values, id }: { values: CreatePostType, id: n
     })
     return response.data
 }
+
 
 export const deletePost = async ({ id }: { id: number }) => {
     const response = await axiosInstance.delete(`posts/post?id=${id}`)
