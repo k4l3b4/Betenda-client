@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Heart, Share2, MessageCircle, CalendarDays, Star } from "lucide-react"
+import { Heart, Share2, MessageCircle } from "lucide-react"
 import { PostType } from "@/types/post";
 import Image from "next/image";
 import { RelativeTime } from "@/components/time/Time";
@@ -12,9 +12,18 @@ import CreatePost from "./create-post";
 import convertTextToLinks from "../convert-text-to-links/convert-text-to-links";
 import ReplyPost from "./reply-post";
 import ProfileHoverCard from "../profile-hover-card/profile-hover-card";
+import { useRouter } from "next/router";
 
 
 const PostData = ({ post }: { post: PostType }) => {
+    const router = useRouter()
+
+    const pushToUser = (link: string) => {
+        if (router.asPath !== link) {
+            router.push(link)
+        }
+    }
+
     return (
         <div className="relative w-full max-w-[650px] rounded-md p-4 my-2 bg-foreground">
             <div className="relative">
@@ -35,7 +44,7 @@ const PostData = ({ post }: { post: PostType }) => {
                     <div className="flex items-baseline gap-x-2">
                         <div>
                             <ProfileHoverCard user={post?.user}>
-                                <Link href={`/${post?.user?.user_name}`} className="font-medium no-underline">{`${post?.user?.first_name} ${post?.user?.last_name}`}</Link>
+                                <button onClick={() => pushToUser(`/${post?.user?.user_name}`)} className="font-medium no-underline">{`${post?.user?.first_name} ${post?.user?.last_name}`}</button>
                             </ProfileHoverCard>
                             <p className="text-xs text-muted-foreground">{`@${post?.user?.user_name}`}</p>
                         </div>
