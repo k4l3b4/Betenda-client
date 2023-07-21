@@ -1,12 +1,18 @@
 import axiosInstance from "@/api/axios-instance"
+import { RegisterType } from "@/types/auth"
 
 export const getUser = async () => {
     const response = await axiosInstance.get("/users/current_user")
     return response?.data
 }
 
-export const followRequests = async () => {
-    const response = await axiosInstance.get('users/requests')
+export const getUserProfile = async ({ username }: { username: string }) => {
+    const response = await axiosInstance.get(`users/get_user?username=${username}`)
+    return response.data
+}
+
+export const getFollowRequests = async () => {
+    const response = await axiosInstance.post('users/requests')
     return response.data
 }
 
@@ -20,8 +26,8 @@ export const unFollowUser = async (id: number) => {
     return response.data
 }
 
-export const updateProfile = async () => {
-    const response = await axiosInstance.post('users/profile')
+export const updateProfile = async (values: RegisterType) => {
+    const response = await axiosInstance.patch('users/get_user')
     return response.data
 }
 
