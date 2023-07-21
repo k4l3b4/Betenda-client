@@ -1,9 +1,6 @@
-import { AxiosError } from "axios";
-
-export default interface ApiError extends AxiosError {
+// AxiosResponse type uses this interface so you can adjust this to your need and then type your api error with AxiosError
+export default interface ApiError {
     type: string,
-    error: {
-        [field: string]: string[] | string;
-    }[],
+    error: string | { [field: string]: string[] | string }[],
     timestamp: string,
 }
