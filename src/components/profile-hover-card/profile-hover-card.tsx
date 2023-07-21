@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { CalendarDays, Star } from "lucide-react";
 import { DateAndMonth } from "../time/Time";
 import { Separator } from "../ui/separator";
+import { formatNumberWithSuffix } from "@/lib/utils";
 
 const ProfileHoverCard = ({ user, children }: { user: UserType, children: React.ReactElement }) => {
     return (
@@ -47,12 +48,12 @@ const ProfileHoverCard = ({ user, children }: { user: UserType, children: React.
                 </div>
                 <div className="w-full mt-4 px-6 h-8 flex items-center justify-between">
                     <div className="text-center">
-                        <p className="font-bold text-xl">{user?.following_count}</p>
+                        <p className="font-bold text-xl">{formatNumberWithSuffix(user?.following_count)}</p>
                         <p className="font-medium text-xs opacity-70">Following</p>
                     </div>
                     <Separator orientation="vertical" />
                     <div className="text-center">
-                        <p className="font-bold text-xl">{user?.followers_count}</p>
+                        <p className="font-bold text-xl">{formatNumberWithSuffix(user?.followers_count)}</p>
                         <p className="font-medium text-xs opacity-70">Followers</p>
                     </div>
                 </div>
