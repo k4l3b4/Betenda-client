@@ -6,66 +6,55 @@ import { GetServerSideProps } from "next"
 import { getPosts } from "@/api/requests/post/requests"
 import { useUserContext } from "@/context/user-context"
 import CreatePost from "@/components/post/create-post";
-import { Fragment } from "react";
-import { PaginatedPostType } from "@/types/post";
+import { InfinitePostsType } from "@/types/post";
+import Link from "next/link";
+import ReplyPost from "@/components/post/reply-post";
+import PostsComp from "@/components/post/posts-comp";
 
 export default function IndexPage() {
-  const { data, isError, isLoading, isFetchingNextPage, refetch, fetchNextPage, hasNextPage } = useInfiniteQuery({ queryKey: ['posts'], queryFn: getPosts, getNextPageParam: (lastPage) => lastPage?.data?.current_page < lastPage?.data?.last_page ? lastPage?.data?.current_page + 1 : undefined, })
-  const posts = data?.pages as PaginatedPostType[]
+  const { data, isError, isLoading, isFetchingNextPage, refetch, isRefetching, fetchNextPage, hasNextPage } = useInfiniteQuery({ queryKey: ['posts'], queryFn: getPosts, getNextPageParam: (lastPage) => lastPage?.data?.page < lastPage?.data?.pages_count ? lastPage?.data?.page + 1 : undefined, })
+  const posts = data as InfinitePostsType
   const { User } = useUserContext()
   return (
-    <div className="flex w-full flex-row justify-around px-2">
+    <div className="relative flex w-full flex-row justify-around px-2 gap-x-2 min-h-screen">
       <Meta title="Betenda" />
-      <aside className="sticky left-0 top-20 h-screen w-72">
+      <aside className="rounded-md w-full max-w-[250px] sticky left-0 top-20 h-[calc(100vh-100px)] p-2">
         <div>
-          <h2 className="text-2xl font-semibold">Top accounts</h2>
-          <ul>
+          <h2>Top accounts</h2>
+          <ul className="ml-2 mt-2">
+            <li><a href="#">My Friend</a></li>
+            <li><a href="#">My Other Friend</a></li>
+            <li><a href="#">My Best Friend</a></li>
+          </ul>
+        </div>
+        <div className="mt-4">
+          <h3>Who to follow</h3>
+          <ul className="ml-2 mt-2">
             <li><a href="#">My Friend</a></li>
             <li><a href="#">My Other Friend</a></li>
             <li><a href="#">My Best Friend</a></li>
           </ul>
         </div>
       </aside>
-      <Separator className="h-full" orientation="vertical" />
-      <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
+      <Separator className="h-full w-[1px] bg-black" orientation="vertical" />
+      <section className="rounded-md container flex flex-col items-center">
         <CreatePost />
-
-        {
-          isLoading ?
-            <>
-              Loading
-            </>
-            :
-            isError ? (
-              <div className="flex flex-col justify-center items-center mt-3">
-                Error
-                {/* <Button onClick={refetch} name="Retry" /> */}
-              </div>
-            )
-              :
-              posts[0]?.results?.length === 0 ? (
-                "no data"
-              )
-                :
-                posts?.map(page =>
-                  page?.results?.map((post, i) => {
-                    return (
-                      <Fragment key={post?.id}>
-                        <PostData post={post} />
-                      </Fragment>
-                    )
-                  }))
-        }
-
+        <PostsComp data={posts} error={isError} loading={isLoading} refetch={refetch} refetching={isRefetching} />
       </section>
       <Separator className="h-full" orientation="vertical" />
-      <aside className="sticky left-0 top-20 h-screen">
-        <h2>Blogroll</h2>
-        <ul>
-          <li><a href="#">My Friend</a></li>
-          <li><a href="#">My Other Friend</a></li>
-          <li><a href="#">My Best Friend</a></li>
-        </ul>
+      <aside className="rounded-md w-full max-w-[250px] sticky left-0 top-20 h-[calc(100vh-100px)] p-2">
+        <h2>Trending</h2>
+        <div className="ml-4">
+          <h3 className="underline">Tags</h3>
+          <div className="flex flex-col gap-2">
+            <Link className="text-lg" href="/tags/#tag">#guragigna</Link>
+            <Link className="text-lg" href="/tags/#tag">#betenda</Link>
+            <Link className="text-lg" href="/tags/#tag">#new_era</Link>
+            <Link className="text-lg" href="/tags/#tag">#gurans</Link>
+            <Link className="text-lg" href="/tags/#tag">#cheha</Link>
+            <Link className="text-lg" href="/tags/#tag">#neged</Link>
+          </div>
+        </div>
       </aside>
     </div>
   )
