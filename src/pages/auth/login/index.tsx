@@ -33,7 +33,7 @@ const LoginForm = () => {
             <Meta title="Login to your existing account" />
             <div className="flex h-screen w-screen justify-center items-center px-1">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 py-10 space-y-8 w-full max-w-md rounded border">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="bg-foreground px-4 py-10 space-y-8 w-full max-w-md rounded border">
                         <h1 className="text-4xl font-semibold">Login</h1>
                         <FormField
                             control={form.control}

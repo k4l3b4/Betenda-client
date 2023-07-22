@@ -49,7 +49,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                 <Hider routes={['/auth/login', '/auth/login/', '/auth/register', '/auth/register/', '/auth/forgot-password', '/auth/forgot-password/']}>
                   <SiteHeader />
                 </Hider>
-                <main className='mt-4'>
+                <main>
                   <Component {...pageProps} />
                 </main>
               </div>
