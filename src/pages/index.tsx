@@ -17,7 +17,7 @@ export default function IndexPage() {
   const { User } = useUserContext()
   return (
     <div className="relative flex w-full flex-row justify-around px-2 gap-x-2 min-h-screen">
-      <Meta title="Betenda" />
+      <Meta title="Our home" />
       <aside className="rounded-md w-full max-w-[250px] sticky left-0 top-20 h-[calc(100vh-100px)] p-2">
         <div>
           <h2>Top accounts</h2>
