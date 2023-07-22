@@ -1,3 +1,5 @@
+import { LoginType } from "@/types/auth";
+
 export interface UserType {
     id: number,
     first_name: string,
@@ -6,7 +8,8 @@ export interface UserType {
     email: string | undefined,
     bio: string | null,
     sex: "MALE" | "FEMALE",
-    profile_avatar: string | null,
+    profile_avatar: string | undefined,
+    profile_cover: string | undefined,
     birth_date: string,
     invited_by: number,
     phone_number: string | undefined | null,
@@ -29,4 +32,30 @@ export interface ReactionsType {
         reaction?: string,
         count?: string,
     }[]
+}
+
+
+
+export interface UserContextValue {
+    User: UserType;
+    LoadingUser: boolean;
+    isFetching: boolean;
+    refetchUser: () => void;
+    userError: boolean;
+    callGetUser: boolean;
+    LoginUser: (values: LoginType) => void;
+    LoginLoading: boolean;
+    LoginSuccess: boolean;
+    LoginError: boolean;
+    LogoutUser: () => void;
+    returnUrl: string;
+    handleSetReturnUrl: (url: string) => void;
+
+}
+
+
+
+export interface DataType {
+    label: string,
+    value: string,
 }
