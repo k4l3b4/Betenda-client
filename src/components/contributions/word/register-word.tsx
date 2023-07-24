@@ -5,19 +5,38 @@ import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useContributionContext } from "@/context/contrib-context";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMutation } from "@tanstack/react-query";
+import { registerWord } from "@/api/requests/contributions/word/requests";
+import { useToast } from "@/components/ui/use-toast";
+import SelectListbox from "@/components/select/select";
+import React, { useState } from "react";
+import { DataType } from "@/types/global";
 
 const formSchema = z.object({
     source_language: z.string().nonempty({ message: "Source language required" }),
     word: z.string().nonempty({ message: "Source word required" }),
     target_language: z.string().nonempty({ message: "Target language required" }),
     translation: z.string().nonempty({ message: "Word translation required" }),
-    synonym: z.string().optional(),
-    antonym: z.string().optional(),
+    synonym: z.any().optional(),
+    antonym: z.any().optional(),
 })
 
 const RegisterWord = () => {
-    const { sourceLanguages, targetLanguages, isLoading, isError, refetch } = useContributionContext()
+    const { toast } = useToast()
+    const { sourceLabelValuePairs, targetLabelValuePairs, isLoading, isError, refetch } = useContributionContext()
+    const [source, setSource] = useState<DataType | null>(null)
+    const [target, setTarget] = useState<DataType | null>(null)
+
+
+    const { mutate, isLoading: registering, isError: error } = useMutation({
+        mutationFn: registerWord,
+        onSuccess: () => {
+            toast({
+                title: "Wo hoo",
+                description: "Amazing!, thank you for your contribution.",
+            })
+        }
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -26,15 +45,25 @@ const RegisterWord = () => {
             translation: "",
             source_language: "",
             target_language: "",
-            synonym: "",
-            antonym: "",
+            synonym: [],
+            antonym: [],
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    const handleSourceSelect = (value: DataType) => {
+        setSource(value)
+        form.setValue('source_language', `${value?.value}`)
     }
 
+    const handleTargetSelect = (value: DataType) => {
+        setTarget(value)
+        form.setValue('target_language', `${value?.value}`)
+    }
+
+
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        mutate(values)
+    }
 
 
     return (
@@ -49,23 +78,9 @@ const RegisterWord = () => {
                             render={({ field }) => (
                                 <FormItem className="w-full">
                                     <FormLabel>Source language</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select the source language" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Languages</SelectLabel>
-                                                {sourceLanguages?.map((lang) => {
-                                                    return (
-                                                        <SelectItem key={lang?.id} value={lang?.id}>{lang?.language}</SelectItem>
-                                                    )
-                                                })}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                    <FormControl>
+                                        <SelectListbox loading={isLoading} data={sourceLabelValuePairs} placeholder="Select the source language" selected={source} setSelected={(value) => handleSourceSelect(value)} />
+                                    </FormControl>
                                     <FormMessage />
                                     <FormDescription>
                                         The source language
@@ -92,62 +107,19 @@ const RegisterWord = () => {
                         />
                     </div>
                     <div className="flex flex-row items-center gap-x-2">
-                        {/* <FormField
-                            control={form.control}
-                            name="target_language"
-                            render={({ field }) => (
-                                <FormItem className="w-full">
-                                    <FormLabel>Target Language</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select the target language" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {targetLanguages?.map(lang =>
-                                                <SelectItem onSelect={(value) => console.log(value)} key={lang?.id} value={lang?.id}>{lang?.language}</SelectItem>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                    <FormDescription>
-                                        The target language/dialect, ቸሃ, ክስታኔ, ምሁር...
-                                    </FormDescription>
-                                </FormItem>
-                            )}
-                        /> */}
                         <FormField
                             control={form.control}
                             name="target_language"
-                            render={({ field }) => (
+                            render={() => (
                                 <FormItem className="w-full">
                                     <FormLabel>Target Language</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a verified email to display" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Languages</SelectLabel>
-                                                <SelectItem value="apple">Apple</SelectItem>
-                                                <SelectItem value="banana">Banana</SelectItem>
-                                                <SelectItem value="blueberry">Blueberry</SelectItem>
-                                                <SelectItem value="grapes">Grapes</SelectItem>
-                                                <SelectItem value="pineapple">Pineapple</SelectItem>
-                                                {/* {
-                                                    targetLanguages?.map((lang) => {
-                                                        return (
-                                                            <SelectItem key={lang?.id} value={lang?.id}>{lang?.language}</SelectItem>
-                                                        )
-                                                    })
-                                                } */}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                    <FormControl>
+                                        <SelectListbox loading={isLoading} data={targetLabelValuePairs} placeholder="Select the source language" selected={target} setSelected={(value) => handleTargetSelect(value)} />
+                                    </FormControl>
                                     <FormMessage />
+                                    <FormDescription>
+                                        The target language
+                                    </FormDescription>
                                 </FormItem>
                             )}
                         />
@@ -203,7 +175,7 @@ const RegisterWord = () => {
                             )}
                         />
                     </div>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">{registering ? "Submitting.." : "Submit"}</Button>
                 </form>
             </Form>
         </div>
