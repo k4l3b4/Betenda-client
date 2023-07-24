@@ -2,14 +2,16 @@
 
 # dependencies
 /node_modules
+/package-lock.zip
 /.pnp
 .pnp.js
-
+.env
 # testing
 /coverage
 
 # next.js
-/.next
+/.next/
+/.next.zip
 /out/
 
 # production
@@ -25,11 +27,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
-.env
+.env.development.local
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
