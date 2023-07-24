@@ -2,20 +2,26 @@ import { RefreshCw, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface FilePreviewProps {
-    file: File;
+    file: File | null;
     previewUrl: string;
     onDelete: () => void;
     onSwap: (file: File) => void;
+    imageClass?: string,
+    videoClass?: string,
+    containerClass?: string,
 }
 
-const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, onSwap }) => {
+const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, onSwap, imageClass, videoClass, containerClass }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [loading, setLoading] = useState(false);
 
     const handleSwapClick = () => {
-        onSwap(file);
+        if (file) {
+            onSwap(file);
+        }
     };
 
     const handleVideoLoadStart = () => {
@@ -49,7 +55,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, o
 
 
     return (
-        <div className='relative'>
+        <div className={cn('relative', containerClass)}>
             {loading ? (
                 <div className='h-[244px] w-[264] flex justify-center items-center text-center'>
                     <p className='font-bold'>Loading...</p>
@@ -58,11 +64,11 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, o
                 :
                 previewUrl ? (
                     <>
-                        {file.type.startsWith('image/') ? (
-                            <Image className='rounded-md object-cover h-auto max-w-[264]' src={previewUrl} alt="Preview" width="600" height="500" style={{ width: '100%', height: 'auto' }} />
+                        {file?.type?.startsWith('image/') ? (
+                            <Image className={cn('rounded-md object-cover h-auto max-w-[264]', imageClass)} src={previewUrl} alt="Preview" width="600" height="500" style={{ width: '100%', height: 'auto' }} />
                         ) : (
                             <video
-                                className="rounded-md object-cover max-h-[244px] max-w-[264]"
+                                className={cn("rounded-md object-cover max-h-[244px] max-w-[264]", videoClass)}
                                 ref={videoRef}
                                 src={previewUrl}
                                 controls
@@ -78,8 +84,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, o
                     </div>
                 )}
             <span className='absolute mb-20 inset-0 bg-gradient-to-b from-slate-700  via-transparent to-transparent rounded-md' />
-            <Button className='absolute top-2 left-2' size="icon" variant="ghost" onClick={onDelete}><Trash2 /></Button>
-            <Button className='absolute top-2 right-2' size="icon" variant="ghost" onClick={handleSwapClick}><RefreshCw /></Button>
+            <Button className='absolute top-2 left-2 bg-gray-400/30' size="icon" variant="ghost" onClick={onDelete}><Trash2 /></Button>
+            <Button className='absolute top-2 right-2 bg-gray-400/30' size="icon" variant="ghost" onClick={handleSwapClick}><RefreshCw /></Button>
         </div>
     );
 };
