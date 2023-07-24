@@ -8,6 +8,11 @@ export const getPosts = async ({ pageParam = 1 }: { pageParam?: number }) => {
     return response.data
 }
 
+export const getPostReplies = async ({ slug, pageParam = 1 }: { slug: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`posts/get_replies?page=${pageParam}`)
+    return response.data
+}
+
 export const getPostsByTag = async ({ tag, pageParam = 1 }: { tag: string, pageParam?: number }) => {
     const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`)
     return response.data
