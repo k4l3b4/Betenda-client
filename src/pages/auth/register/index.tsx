@@ -11,7 +11,9 @@ import Link from "next/link"
 import { useMutation } from "@tanstack/react-query"
 import Meta from "@/components/meta/meta"
 import { registerUser } from "@/api/requests/auth/requests"
-
+import { AxiosError } from "axios"
+import { renderErrors } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
 
 const formSchema = z.object({
   first_name: z.string().nonempty({ message: "First name is required" }),
@@ -32,10 +34,39 @@ const formSchema = z.object({
 });
 
 const FirstForm = () => {
+  const { toast } = useToast()
   const { mutate, isLoading } = useMutation({
     mutationFn: registerUser,
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       console.log(error)
+      if (!error?.response) {
+        if (error?.code === "ERR_BAD_REQUEST") {
+          toast({
+            variant: "destructive",
+            title: "Oops",
+            description: "Malformed syntax or invalid request message framing"
+          })
+        } else if (error?.code === "ERR_CONNECTION_TIMED_OUT ") {
+          toast({
+            variant: "destructive",
+            title: "Oops",
+            description: "Connection timed out"
+          })
+        }
+      }
+      else if (error?.response) {
+        toast({
+          variant: "destructive",
+          title: "Oops",
+          description: <div dangerouslySetInnerHTML={{ __html: renderErrors(error?.response?.data) }} />
+        })
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Oops",
+          description: "An error occurred"
+        })
+      }
     }
   })
   const router = useRouter()
@@ -69,9 +100,9 @@ const FirstForm = () => {
   return (
     <>
       <Meta title="Create an account with your invitation code" />
-      <div className="flex h-screen w-screen justify-center items-center px-1">
+      <div className="flex h-screen w-full max-w-screen justify-center items-center px-1">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 py-10 space-y-8 w-full max-w-md rounded border">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="bg-foreground px-4 py-10 space-y-8 w-full max-w-md rounded border">
             <h1 className="text-4xl font-semibold">Create an account</h1>
             <div className="w-full flex flex-row gap-x-2 items-center">
               <FormField
