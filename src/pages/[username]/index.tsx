@@ -1,95 +1,52 @@
-import { followUser, getUserProfile, unFollowUser } from "@/api/requests/user/requests";
+import { acceptFollowRequest, followUser, getUserProfile, unFollowUser } from "@/api/requests/user/requests";
 import Meta from "@/components/meta/meta";
+import ProfileButtonFormatter from "@/components/profile-button-formatter/profile-button-formatter";
 import { DateAndMonth } from "@/components/time/Time";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useUserContext } from "@/context/user-context";
-import { formatNumberWithSuffix } from "@/lib/utils";
+import { formatNumberWithSuffix, getCookieValue } from "@/lib/utils";
 import { UserType } from "@/types/global";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, dehydrate, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
 import { useEffect, useState } from "react";
 
 const User = () => {
+    const queryClient = useQueryClient()
     const { User } = useUserContext()
     const router = useRouter()
     const { username } = router.query as ParsedUrlQuery
     const cleanUsername = username as string
-    const { data } = useQuery({ queryKey: ['get_user', cleanUsername], queryFn: () => getUserProfile({ username: cleanUsername }) })
+    const { data } = useQuery({ queryKey: ['get_user_by_username', cleanUsername], queryFn: () => getUserProfile({ username: cleanUsername }), enabled: username ? true : false })
     const user = data?.data as UserType
-    const [followStatus, setFollowStatus] = useState<string>("Follow");
-    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
-    const isUserFollowingRequestedUser = user?.follows_requesting_user;
-    const isRequestedUserFollowingUser = user?.requesting_user_follows;
 
     const { mutate: follow, isLoading: following } = useMutation({
         mutationFn: () => followUser(user?.id),
         onSuccess: () => {
-            if (isUserFollowingRequestedUser && isRequestedUserFollowingUser) {
-                setFollowStatus("Friends");
-                setIsButtonDisabled(false);
-            } else {
-                setFollowStatus("Following");
-            }
+            queryClient.invalidateQueries({ queryKey: ['get_user_by_username'] })
         }
     })
 
     const { mutate: unFollow, isLoading: unFollowing } = useMutation({
         mutationFn: () => unFollowUser(user?.id),
         onSuccess: () => {
-            if (!isUserFollowingRequestedUser) {
-                setFollowStatus("Follow");
-                setIsButtonDisabled(true);
-            } else {
-                setFollowStatus("Following");
-            }
+            queryClient.invalidateQueries({ queryKey: ['get_user_by_username'] })
         }
     })
 
-    // When the component mounts or whenever 'user' changes, update the follow status and button disabled state.
-    useEffect(() => {
-        if (user?.id === User?.id) {
-            setFollowStatus("Add friends");
-            setIsButtonDisabled(false);
+    const { mutate: accept, isLoading: accepting } = useMutation({
+        mutationFn: () => acceptFollowRequest(user?.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['get_user_by_username'] })
         }
-        else if (isUserFollowingRequestedUser && isRequestedUserFollowingUser) {
-            setFollowStatus("Friends");
-            setIsButtonDisabled(false);
-        } else if (isUserFollowingRequestedUser && !isRequestedUserFollowingUser) {
-            setFollowStatus("Following");
-            setIsButtonDisabled(false);
-        } else if (!isUserFollowingRequestedUser && isRequestedUserFollowingUser) {
-            setFollowStatus("Follow back");
-            setIsButtonDisabled(true);
-        } else if (!isUserFollowingRequestedUser && !isRequestedUserFollowingUser) {
-            setFollowStatus("Follow");
-            setIsButtonDisabled(true);
-        }
-    }, [isUserFollowingRequestedUser, isRequestedUserFollowingUser, user?.id, User?.id]);
-
-
-    const handleClick = () => {
-        switch (followStatus) {
-            case "Follow":
-            case "Follow back":
-                follow();
-                break;
-            case "Following":
-            case "Friends":
-                unFollow();
-                break;
-            default:
-                // Ignoring the click of users on their own profile
-                break;
-        }
-    }
-
+    })
 
     return (
-        <div>
+        <div className="mt-4">
             <Meta title={`${username ?? "Loading"}'s account`} />
             <div className="flex flex-row justify-around gap-2">
                 <div>
@@ -103,11 +60,8 @@ const User = () => {
                         </div>
                         <div className="relative">
                             <Avatar className="absolute -top-24 left-4 h-32 w-32 z-50 rounded-md ring-4 ring-background">
-                                {user?.profile_cover ?
-                                    <AvatarImage src={user?.profile_avatar} alt={`@${user?.user_name}`} />
-                                    :
-                                    <AvatarFallback className="text-5xl font-bold">{`${user?.first_name?.substr(0, 1)}${user?.last_name?.substr(0, 1)}`}</AvatarFallback>
-                                }
+                                <AvatarImage src={user?.profile_avatar} alt={`@${user?.user_name}`} />
+                                <AvatarFallback className="text-5xl font-bold">{`${user?.first_name?.substr(0, 1)}${user?.last_name?.substr(0, 1)}`}</AvatarFallback>
                             </Avatar>
                         </div>
                     </div>
@@ -125,12 +79,12 @@ const User = () => {
                             }
                             <div className="w-fit mt-4 h-8 flex items-center justify-between">
                                 <div className="flex items-center mr-4 gap-x-2">
-                                    <p className="font-bold text-xl">{formatNumberWithSuffix(user?.following_count)}</p>
+                                    <p className="font-bold text-xl">{formatNumberWithSuffix(user?.following_count) ?? "-"}</p>
                                     <p className="font-medium text-xs opacity-70">Following</p>
                                 </div>
                                 <Separator orientation="vertical" />
                                 <div className="flex items-center ml-4 gap-x-2">
-                                    <p className="font-bold text-xl">{formatNumberWithSuffix(user?.followers_count)}</p>
+                                    <p className="font-bold text-xl">{formatNumberWithSuffix(user?.followers_count)?? "-"}</p>
                                     <p className="font-medium text-xs opacity-70">Followers</p>
                                 </div>
                             </div>
@@ -142,7 +96,7 @@ const User = () => {
                             </div>
                         </div>
                         <div>
-                            <Button onClick={handleClick} disabled={isButtonDisabled}>{followStatus}</Button>
+                            <ProfileButtonFormatter user={user} follow={follow} unfollow={unFollow} accept={accept} fulfilling={(following || unFollowing || accepting)} />
                         </div>
                     </div>
                 </div>
@@ -150,8 +104,26 @@ const User = () => {
 
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
 export default User;
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req } = context;
+    const { username } = context.params as ParsedUrlQuery
+    console.log(username)
+
+    // Get the value of the 'sessionId' cookie
+    const sessionId = getCookieValue(req, 'sessionid')
+    console.log(sessionId)
+    const queryClient = new QueryClient()
+    await queryClient.prefetchQuery({ queryKey: ['get_user_by_username', username], queryFn: () => getUserProfile({ username: username as string, sessionId: sessionId }) })
+    return {
+        props: {
+            dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+        },
+    }
+}
