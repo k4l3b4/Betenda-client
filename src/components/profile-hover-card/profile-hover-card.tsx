@@ -9,7 +9,7 @@ import { formatNumberWithSuffix } from "@/lib/utils";
 const ProfileHoverCard = ({ user, children }: { user: UserType, children: React.ReactElement }) => {
     return (
         <HoverCard>
-            <HoverCardTrigger className="no-underline">
+            <HoverCardTrigger asChild className="no-underline">
                 {children}
             </HoverCardTrigger>
             <HoverCardContent className="w-80">
