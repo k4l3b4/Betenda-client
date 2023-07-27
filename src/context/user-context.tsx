@@ -6,14 +6,16 @@ import { loginUser } from '@/api/requests/auth/requests';
 import { LoginType } from '@/types/auth';
 import { getUser } from '@/api/requests/user/requests';
 import ApiError from '@/types/api';
+import { UserContextValue, UserType } from '@/types/global';
+import { AxiosError } from 'axios';
 
 
-const UserContext = createContext<any>({});
+const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {
-        throw new Error('useUserContext must be used within a UserProvider');
+        throw new Error('useUserContext must be used within a UserProvider, please wrap your top most level component that need the UserContext with <UserProvider>');
     }
     return context;
 };
@@ -37,6 +39,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
     })
 
+
+    const handleSetReturnUrl = (url: string) => {
+        setReturnUrl(url)
+    }
+
+
     useEffect(() => {
         if (token) {
             setCallGetUser(true)
@@ -51,9 +59,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const { data: UserData, refetch: refetchUser, isLoading: LoadingUser, isError: userError, isFetching } = useQuery({
-        queryKey: ['get-user'], queryFn: getUser,
+        queryKey: ['get_user'], queryFn: getUser,
         enabled: callGetUser,
-        onError: (error: ApiError) => {
+        onError: (error: AxiosError) => {
             if (error?.response?.status === 401) {
                 LogoutUser()
                 setCallGetUser(false)
@@ -66,22 +74,23 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     const value = {
-        User: User,
+        // fetching the user
+        User: User as UserType,
         LoadingUser: LoadingUser,
         isFetching: isFetching,
         refetchUser: refetchUser,
         userError: userError,
         callGetUser: callGetUser,
-
+        // login
         LoginUser: LoginUser,
         LoginLoading: LoginLoading,
         LoginSuccess: LoginSuccess,
         LoginError: LoginError,
 
         LogoutUser: LogoutUser,
-
+        // redirect after login
         returnUrl: returnUrl,
-        setReturnUrl: setReturnUrl
+        handleSetReturnUrl: handleSetReturnUrl
 
     }
 
