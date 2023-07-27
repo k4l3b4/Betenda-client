@@ -1,10 +1,16 @@
+import { registerSentence } from "@/api/requests/contributions/sentence/requests";
+import SelectListbox from "@/components/select/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { useContributionContext } from "@/context/contrib-context";
+import { DataType } from "@/types/global";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
     source_language: z.string().nonempty({ message: "First name is required" }),
@@ -14,7 +20,21 @@ const formSchema = z.object({
 })
 
 const RegisterSentence = () => {
-    const { mutate, isLoading } = useMutation({})
+    const { toast } = useToast()
+    const { sourceLabelValuePairs, targetLabelValuePairs, isLoading, isError, refetch } = useContributionContext()
+    const [source, setSource] = useState<DataType | null>(null)
+    const [target, setTarget] = useState<DataType | null>(null)
+
+
+    const { mutate, isLoading: registering, isError: error } = useMutation({
+        mutationFn: registerSentence,
+        onSuccess: () => {
+            toast({
+                title: "Wo hoo",
+                description: "Amazing!, thank you for your contribution.",
+            })
+        }
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -26,7 +46,22 @@ const RegisterSentence = () => {
         },
     })
     function onSubmit(values: z.infer<typeof formSchema>) {
+        mutate(values)
     }
+
+
+
+    const handleSourceSelect = (value: DataType) => {
+        setSource(value)
+        form.setValue('source_language', `${value?.value}`)
+    }
+
+    const handleTargetSelect = (value: DataType) => {
+        setTarget(value)
+        form.setValue('target_language', `${value?.value}`)
+    }
+
+
     return (
         <div className="w-full">
             <Form {...form}>
@@ -36,16 +71,16 @@ const RegisterSentence = () => {
                         <FormField
                             control={form.control}
                             name="source_language"
-                            render={({ field }) => (
+                            render={() => (
                                 <FormItem className="w-full">
-                                    <FormLabel>Source Language</FormLabel>
+                                    <FormLabel>Target Language</FormLabel>
                                     <FormControl>
-                                        <Input type="text" placeholder="English" {...field} />
+                                        <SelectListbox loading={isLoading} data={sourceLabelValuePairs} placeholder="Select source the language" selected={source} setSelected={(value) => handleSourceSelect(value)} />
                                     </FormControl>
-                                    <FormDescription>
-                                        The source language, English, Amharic...
-                                    </FormDescription>
                                     <FormMessage />
+                                    <FormDescription>
+                                        The target language
+                                    </FormDescription>
                                 </FormItem>
                             )}
                         />
@@ -71,16 +106,16 @@ const RegisterSentence = () => {
                         <FormField
                             control={form.control}
                             name="target_language"
-                            render={({ field }) => (
+                            render={() => (
                                 <FormItem className="w-full">
                                     <FormLabel>Target Language</FormLabel>
                                     <FormControl>
-                                        <Input type="text" placeholder="ቸሃ" {...field} />
+                                        <SelectListbox loading={isLoading} data={targetLabelValuePairs} placeholder="Select target the language" selected={target} setSelected={(value) => handleTargetSelect(value)} />
                                     </FormControl>
-                                    <FormDescription>
-                                        The target language/dialect, ቸሃ, ክስታኔ, ምሁር...
-                                    </FormDescription>
                                     <FormMessage />
+                                    <FormDescription>
+                                        The target language
+                                    </FormDescription>
                                 </FormItem>
                             )}
                         />
@@ -102,7 +137,7 @@ const RegisterSentence = () => {
                             )}
                         />
                     </div>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">{registering ? "Submitting..." : "Submit"}</Button>
                 </form>
             </Form>
         </div>
