@@ -1,10 +1,16 @@
+import { registerSaying } from "@/api/requests/contributions/saying/requests";
+import SelectListbox from "@/components/select/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { useContributionContext } from "@/context/contrib-context";
+import { DataType } from "@/types/global";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
     saying: z.string().nonempty({ message: "First name is required" }),
@@ -12,7 +18,18 @@ const formSchema = z.object({
 })
 
 const RegisterSaying = () => {
-    const { mutate, isLoading } = useMutation({})
+    const { toast } = useToast()
+    const { targetLabelValuePairs, isLoading, isError, refetch } = useContributionContext()
+    const [target, setTarget] = useState<DataType | null>(null)
+    const { mutate, isLoading: registering, isError: error } = useMutation({
+        mutationFn: registerSaying,
+        onSuccess: () => {
+            toast({
+                title: "Wo hoo",
+                description: "Amazing!, thank you for your contribution.",
+            })
+        }
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -22,7 +39,14 @@ const RegisterSaying = () => {
         },
     })
     function onSubmit(values: z.infer<typeof formSchema>) {
+        mutate(values)
     }
+
+    const handleTargetSelect = (value: DataType) => {
+        setTarget(value)
+        form.setValue('language', `${value?.value}`)
+    }
+
     return (
         <div className="w-full">
             <Form {...form}>
@@ -45,21 +69,21 @@ const RegisterSaying = () => {
                     <FormField
                         control={form.control}
                         name="language"
-                        render={({ field }) => (
+                        render={() => (
                             <FormItem className="w-full">
-                                <FormLabel>Language</FormLabel>
+                                <FormLabel>Target Language</FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="Good morning" {...field} />
+                                    <SelectListbox loading={isLoading} data={targetLabelValuePairs} placeholder="Select the language" selected={target} setSelected={(value) => handleTargetSelect(value)} />
                                 </FormControl>
                                 <FormMessage />
                                 <FormDescription>
-                                    The language the saying is written in
+                                    The target language
                                 </FormDescription>
                             </FormItem>
                         )}
                     />
 
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">{registering ? "Submitting.." : "Submit"}</Button>
                 </form>
             </Form>
         </div>
