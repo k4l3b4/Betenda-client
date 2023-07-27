@@ -1,5 +1,8 @@
+import { useToast } from "@/components/ui/use-toast";
 import ApiError from "@/types/api";
+import { AxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx"
+import { IncomingMessage } from "http";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -72,3 +75,59 @@ export const renderErrors = (error: ApiError): string | { [field: string]: strin
 
   return formattedErrors;
 }
+
+
+
+export const ShowErrorToast = (error: AxiosError) => {
+  const { toast } = useToast()
+
+  if (!error?.response) {
+    if (error?.code === "ERR_BAD_REQUEST") {
+      toast({
+        variant: "destructive",
+        title: "Oops",
+        description: "Malformed syntax or invalid request message framing",
+      });
+    } else if (error?.code === "ERR_CONNECTION_TIMED_OUT") {
+      toast({
+        variant: "destructive",
+        title: "Oops",
+        description: "Connection timed out",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Oops",
+        description: "An error occurred",
+      });
+    }
+  } else if (error?.response) {
+    toast({
+      variant: "destructive",
+      title: "Oops",
+      description: renderErrors(error?.response?.data).toString(),
+    })
+  } else {
+    toast({
+      variant: "destructive",
+      title: "Oops",
+      description: "An error occurred",
+    });
+  }
+};
+
+
+export const getCookieValue = (req: IncomingMessage, cookieName: string): string => {
+  const rawCookies = req.headers.cookie || '';
+
+  // Parse the cookies from the raw cookie string
+  const cookies: { [key: string]: string } = rawCookies.split(';').reduce((cookiesObj: any, cookie) => {
+    const [name, value] = cookie.trim().split('=');
+    cookiesObj[name] = value;
+    return cookiesObj;
+  }, {});
+
+  // Get the value of the specified cookie
+  const cookieValue = cookies[cookieName] || '';
+  return cookieValue;
+};
