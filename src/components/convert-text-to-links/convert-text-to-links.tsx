@@ -9,45 +9,45 @@ function convertTextToLinks(text: string): React.ReactNode[] {
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
 
-    text.replace(hashtagRegex, (match, hashtag, index) => {
-        const beforeText = text.slice(lastIndex, index);
+    text?.replace(hashtagRegex, (match, hashtag, index) => {
+        const beforeText = text?.slice(lastIndex, index);
         const link = (
             <Link href={`/hashtag/${hashtag}`} key={index}>
                 {`#${hashtag}`}
             </Link>
         );
-        parts.push(beforeText, link);
-        lastIndex = index + match.length;
+        parts?.push(beforeText, link);
+        lastIndex = index + match?.length;
         return match;
     });
 
-    text.replace(mentionRegex, (match, mention, index) => {
-        const beforeText = text.slice(lastIndex, index);
+    text?.replace(mentionRegex, (match, mention, index) => {
+        const beforeText = text?.slice(lastIndex, index);
         const link = (
             <Link href={`/${mention}`} key={index}>
                 {`@${mention}`}
             </Link>
         );
-        parts.push(beforeText, link);
-        lastIndex = index + match.length;
+        parts?.push(beforeText, link);
+        lastIndex = index + match?.length;
         return match;
     });
 
-    text.replace(linkRegex, (match, index) => {
-        const beforeText = text.slice(lastIndex, index);
-        const url = match.startsWith('http') ? match : `http://${match}`;
+    text?.replace(linkRegex, (match, index) => {
+        const beforeText = text?.slice(lastIndex, index);
+        const url = match?.startsWith('http') ? match : `http://${match}`;
         const link = (
             <a href={url} target="_blank" rel="noopener noreferrer" key={index}>
                 {match}
             </a>
         );
-        parts.push(beforeText, link);
-        lastIndex = index + match.length;
+        parts?.push(beforeText, link);
+        lastIndex = index + match?.length;
         return match;
     });
 
-    const remainingText = text.slice(lastIndex);
-    parts.push(remainingText);
+    const remainingText = text?.slice(lastIndex);
+    parts?.push(remainingText);
 
     return parts;
 }
