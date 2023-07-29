@@ -1,12 +1,30 @@
 import Trending from "@/components/trending/trending";
 import Sidebar from "@/components/sidebar/sidebar";
+import { cn } from "@/lib/utils";
+import { useMediaQuery } from "usehooks-ts";
 
-const FeedLayout = ({ children }: { children: React.ReactNode }) => {
+type FeedLayoutType = {
+    children: React.ReactNode,
+    sideBar?: "mount" | "unmount",
+    trending?: "mount" | "unmount",
+    className?: string,
+}
+
+const FeedLayout: React.FC<FeedLayoutType> = ({ children, sideBar = "mount", trending = "mount", className }) => {
+    const trendingMount = useMediaQuery('(min-width: 1097px)')
+    const sidebarMount = useMediaQuery('(min-width: 851px)')
+
     return (
-        <div className="relative flex w-full flex-row justify-around px-2 gap-x-2 min-h-screen">
-            <Sidebar />
+        <div className={cn("relative flex w-full flex-row justify-between px-2 gap-x-1 min-h-screen", className)}>
+            {(sideBar === "mount" && sidebarMount) &&
+                <Sidebar />
+            }
+
             {children}
-            <Trending />
+
+            {(trending === "mount" && trendingMount) &&
+                <Trending />
+            }
         </div>
     );
 }
