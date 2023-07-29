@@ -84,8 +84,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, previewUrl, onDelete, o
                     </div>
                 )}
             <span className='absolute mb-20 inset-0 bg-gradient-to-b from-slate-700  via-transparent to-transparent rounded-md' />
-            <Button className='absolute top-2 left-2 bg-gray-400/30' size="icon" variant="ghost" onClick={onDelete}><Trash2 /></Button>
-            <Button className='absolute top-2 right-2 bg-gray-400/30' size="icon" variant="ghost" onClick={handleSwapClick}><RefreshCw /></Button>
+            <Button type="button" className='absolute top-2 left-2 bg-gray-400/30' size="icon" variant="ghost" onClick={onDelete}><Trash2 /></Button>
+            <Button type="button" className='absolute top-2 right-2 bg-gray-400/30' size="icon" variant="ghost" onClick={handleSwapClick}><RefreshCw /></Button>
         </div>
     );
 };
