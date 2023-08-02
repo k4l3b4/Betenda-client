@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 # Betenda client
 
-This repository contains the frontend TypeScript Next.js app that serves as a client for the [`Betenda`]([https://github.com/vercel/next.js/tree/canary/packages/create-next-app](https://github.com/k4l3b4/Betenda) word and language contribution backend API. The app allows users to contribute new words, translations, and language-related data to the backend API as well as handling user communications and social media like functionalities, fostering collaboration and enrichment of linguistic resources.
+This repository contains the frontend TypeScript Next.js app that serves as a client for the [Betenda](https://github.com/k4l3b4/Betenda) word and language contribution backend API. The app allows users to contribute new words, translations, and language-related data to the backend API as well as handling user communications and social media like functionalities, fostering collaboration and enrichment of linguistic resources.
 
 ## Features
 - **User Authentication**: Users can sign up, log in, and manage their accounts to contribute words and translations securely.
@@ -16,7 +16,7 @@ This repository contains the frontend TypeScript Next.js app that serves as a cl
 
 ## Technologies Used
 
-- Frontend: TypeScript, Next.js, React, Tailwind CSS, Scss, [`tiptap(WYSIWYG editor)`](https://github.com/ueberdosis/tiptap), [`react-query`](https://github.com/TanStack/query), [`shadcn ui`](https://github.com/shadcn-ui/ui)
+- Frontend: TypeScript, Next.js, React, Tailwind CSS, Scss, [tiptap(WYSIWYG editor)](https://github.com/ueberdosis/tiptap), [react-query](https://github.com/TanStack/query), [shadcn ui](https://github.com/shadcn-ui/ui)
 
 ## Getting Started
 
