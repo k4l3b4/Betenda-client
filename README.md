@@ -49,7 +49,7 @@ The app should now be running on `http://localhost:3000`.
 
 We welcome contributions to improve and enhance the app. If you find any bugs or have ideas for new features, please open an issue or submit a pull request.
 
-Before making any contributions, please read our [contribution guidelines](CONTRIBUTING.md).
+Before making any contributions, please read our [contribution guidelines](CONTRIBUTIONS.md).
 
 ## License
 
