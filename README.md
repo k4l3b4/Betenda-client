@@ -1,6 +1,20 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 # Betenda client
+<table>
+  <tr>
+    <td><img src="https://github.com/k4l3b4/Betenda-client/assets/59311872/faf6c14b-8949-4136-b109-0c5d93382393" alt="Capture 1"></td>
+    <td><img src="https://github.com/k4l3b4/Betenda-client/assets/59311872/ef8c5386-d5a5-4c81-aa3e-e1b61e3b728e" alt="Capture 2"></td>
+  </tr>
+</table>
+<div style="display: flex; justify-content: between; width: 100%;">
+  <img src="https://github.com/k4l3b4/Betenda-client/assets/59311872/806b9c7e-0139-4b28-80c9-1c30cc13800c" alt="Capture 3" style="margin-right: 10px;">
+  <img src="https://github.com/k4l3b4/Betenda-client/assets/59311872/5899c100-dabb-413b-a64f-b0335e96fc69" alt="Capture 4">
+</div>
+
+<br/>
+<br/>
+<br/>
 
 This repository contains the frontend TypeScript Next.js app that serves as a client for the [Betenda](https://github.com/k4l3b4/Betenda) word and language contribution backend API. The app allows users to contribute new words, translations, and language-related data to the backend API as well as handling user communications and social media like functionalities, fostering collaboration and enrichment of linguistic resources.
 
@@ -49,7 +63,7 @@ The app should now be running on `http://localhost:3000`.
 
 We welcome contributions to improve and enhance the app. If you find any bugs or have ideas for new features, please open an issue or submit a pull request.
 
-Before making any contributions, please read our [contribution guidelines](CONTRIBUTING.md).
+Before making any contributions, please read our [contribution guidelines](CONTRIBUTIONS.md).
 
 ## License
 
