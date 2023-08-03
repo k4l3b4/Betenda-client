@@ -11,13 +11,17 @@ module.exports = {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
     },
     extend: {
+      screens: {
+        "sml": "10px",
+        "2xs": "340px",
+        "xxs": "440px",
+        "xsm": "540px",
+        "2xl": "1400px",
+      },
       fontFamily: {
-        kanit: ['var(--font-kanit)'],
+        poppins: ['var(--font-poppins)'],
       },
       colors: {
         border: "hsl(var(--border))",

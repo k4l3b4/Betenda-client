@@ -57,7 +57,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-If you have any questions or need further assistance, feel free to contact me on my telegram account @kaleb_abebe.
+If you have any questions or need further assistance, feel free to contact me on my telegram account [Kaleb abebe](https://t.me/kaleb_abebe).
 
 Happy contributing! 🚀
 
