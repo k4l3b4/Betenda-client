@@ -15,6 +15,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [create-next-
 <br/>
 <br/>
 <br/>
+
 This repository contains the frontend TypeScript Next.js app that serves as a client for the [Betenda](https://github.com/k4l3b4/Betenda) word and language contribution backend API. The app allows users to contribute new words, translations, and language-related data to the backend API as well as handling user communications and social media like functionalities, fostering collaboration and enrichment of linguistic resources.
 
 ## Features
