@@ -1,7 +1,7 @@
 import axios from "axios";
 import GetFromStorage from "@/components/get-from-local/get-from-local";
 
-const BASEURL = process.env.NEXT_PUBLIC_BASE_URL
+const BASEURL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 const axiosInstance = axios.create({
     baseURL: BASEURL,
