@@ -12,7 +12,7 @@ function convertTextToLinks(text: string): React.ReactNode[] {
     text?.replace(hashtagRegex, (match, hashtag, index) => {
         const beforeText = text?.slice(lastIndex, index);
         const link = (
-            <Link href={`/hashtag/${hashtag}`} key={index}>
+            <Link onClick={(event) => event.stopPropagation()} href={`/hashtag/${hashtag}`} key={index}>
                 {`#${hashtag}`}
             </Link>
         );
@@ -24,7 +24,7 @@ function convertTextToLinks(text: string): React.ReactNode[] {
     text?.replace(mentionRegex, (match, mention, index) => {
         const beforeText = text?.slice(lastIndex, index);
         const link = (
-            <Link href={`/${mention}`} key={index}>
+            <Link onClick={(event) => event.stopPropagation()} href={`/${mention}`} key={index}>
                 {`@${mention}`}
             </Link>
         );
@@ -37,7 +37,7 @@ function convertTextToLinks(text: string): React.ReactNode[] {
         const beforeText = text?.slice(lastIndex, index);
         const url = match?.startsWith('http') ? match : `http://${match}`;
         const link = (
-            <a href={url} target="_blank" rel="noopener noreferrer" key={index}>
+            <a onClick={(event) => event.stopPropagation()} href={url} target="_blank" rel="noopener noreferrer" key={index}>
                 {match}
             </a>
         );
