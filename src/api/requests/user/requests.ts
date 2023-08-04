@@ -22,11 +22,17 @@ export const getFollowRequests = async () => {
 }
 
 export const followUser = async (id: number) => {
+    if (!id) {
+        throw new Error("An id should be passed either directly to the useFollowRequest hook or to the follow function")
+    }
     const response = await axiosInstance.post(`users/follow/${id}`)
     return response.data
 }
 
 export const unFollowUser = async (id: number) => {
+    if (!id) {
+        throw new Error("An id should be passed either directly to the useUnFollowUser hook or to the unFollow function")
+    }
     const response = await axiosInstance.post(`users/unfollow/${id}`)
     return response.data
 }
@@ -48,6 +54,9 @@ export const getAuthors = async (search?: string) => {
 }
 
 export const acceptFollowRequest = async (id: number) => {
+    if (!id) {
+        throw new Error("An id should be passed either directly to the useAcceptFollowRequest hook or to the accept function")
+    }
     const response = await axiosInstance.post(`users/accept/${id}`)
     return response.data
 }
