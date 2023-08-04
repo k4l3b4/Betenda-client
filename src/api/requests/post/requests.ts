@@ -1,35 +1,53 @@
 import axiosInstance from "@/api/axios-instance"
-import { uploadProgress } from "@/lib/utils"
 import { CreatePostType } from "@/types/post"
 import FormData from "form-data"
 
-export const getPosts = async ({ pageParam = 1 }: { pageParam?: number }) => {
-    const response = await axiosInstance.get(`posts/get_posts?page=${pageParam}`)
+export const getPosts = async ({ pageParam = 1, sessionId = "" }: { pageParam?: number, sessionId?: string }) => {
+    const response = await axiosInstance.get(`posts/get_posts?page=${pageParam}`, {
+        headers: {
+            Cookie: `sessionid=${sessionId}`,
+        },
+    })
     return response.data
 }
 
-export const getPostReplies = async ({ slug, pageParam = 1 }: { slug: string, pageParam?: number }) => {
-    const response = await axiosInstance.get(`posts/get_replies?page=${pageParam}`)
+export const getUserPosts = async ({ pageParam = 1, username }: { pageParam?: number, username: string }) => {
+    const response = await axiosInstance.get(`posts/posts_by_user?username=${username}&page=${pageParam}`, {
+    })
     return response.data
 }
 
-export const getPostsByTag = async ({ tag, pageParam = 1 }: { tag: string, pageParam?: number }) => {
-    const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`)
+export const getPostBySlug = async ({ slug, sessionId = "" }: { slug: string, sessionId?: string }) => {
+    const response = await axiosInstance.get(`posts/get_post/${slug}`, {
+        headers: {
+            Cookie: `sessionid=${sessionId}`,
+        },
+    })
+    return response.data
+}
+
+export const getPostReplies = async ({ parent, pageParam = 1 }: { parent: number, pageParam?: number }) => {
+    const response = await axiosInstance.get(`posts/get_replies?parent=${parent}&page=${pageParam}`)
+    return response.data
+}
+
+export const getPostsByTag = async ({ tag, pageParam = 1, sessionId = "" }: { tag: string, pageParam?: number, sessionId?: string }) => {
+    const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`, {
+        headers: {
+            Cookie: `sessionid=${sessionId}`,
+        },
+    })
     return response.data
 }
 
 export const createPost = async ({ values, parent = undefined }: { values: CreatePostType, parent?: number | undefined }) => {
     const data = new FormData()
-    { values?.content ? data.append('content', values?.content) : undefined }
-    { values?.media ? data.append('media', values?.media, values?.media?.name) : undefined }
+    if (values?.content) data.append('content', values.content);
+    if (values?.media) {
+        data.append('media', values.media, values.media.name);
+    }
 
     const response = await axiosInstance.post(`posts/post${parent ? `?parent_id=${parent}` : ''}`, data, {
-        onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-                (progressEvent?.loaded * 100) / progressEvent?.total
-            );
-            uploadProgress['create-post'] = percentCompleted; // Update the upload progress for the given key
-        },
         timeout: 90000,
         headers: {
             'Content-Type': values.media?.type
