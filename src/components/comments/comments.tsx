@@ -23,11 +23,6 @@ const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => 
     const { commentInput, handleInputChange, handleReplyToComment, handleSaveComment, handleTopParent } = useReplyContext();
 
     const { User } = useUserContext()
-    const [openReply, setOpenReply] = useState(false)
-
-    const handleReplyOpen = () => {
-        setOpenReply(!openReply)
-    }
 
     const queryClient = useQueryClient()
     const {
@@ -78,7 +73,7 @@ const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => 
                                 <div className="my-2 flex items-center gap-x-2">
                                     <Avatar className="w-12 h-12 mt-1">
                                         <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
-                                        <AvatarFallback>{User?.first_name?.substring(0, 1) + " " + User?.last_name?.substring(0, 1)}</AvatarFallback>
+                                        <AvatarFallback>{User?.first_name?.substring(0, 1) + User?.last_name?.substring(0, 1)}</AvatarFallback>
                                     </Avatar>
                                     <div className="w-full flex items-center justify-between gap-x-2">
                                         <Input
@@ -104,14 +99,8 @@ const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => 
                                                             exit={{ scale: 0.9, opacity: 0 }}
                                                             transition={{ type: "spring", duration: 0.5 }}
                                                         >
-                                                            <Comment comment={comment} />
-                                                            {comment?.reply_count > 0 && <button className="ml-[72px] mt-2 opacity-70 text-sm" onClick={handleReplyOpen}>{openReply ? `Hide replies` : `View replies(${comment?.reply_count})`}</button>}
+                                                            <Comment comment={comment} resource_type={resource_type} resource_id={resource_id} />
                                                         </motion.div>
-                                                        {(openReply && comment?.reply_count > 0) &&
-                                                            <section className="ml-16">
-                                                                <Replies resource_type={resource_type} resource_id={resource_id} parent_id={comment?.id} />
-                                                            </section>
-                                                        }
                                                     </Fragment>
                                                 )
                                             }))}
