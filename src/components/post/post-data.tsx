@@ -1,21 +1,22 @@
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import { motion } from 'framer-motion'
-import { Heart, Share2, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PostType } from "@/types/post";
-import { RelativeTime } from "@/components/time/Time";
-import { cn, formatNumberWithSuffix, guessMedia } from "@/lib/utils";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import CreatePost from "@/components/post/create-post";
+import { ReactType } from "@/api/requests/reactions/requests";
 import convertTextToLinks from "@/components/convert-text-to-links/convert-text-to-links";
+import CreatePost from "@/components/post/create-post";
 import ReplyPost from "@/components/post/reply-post";
 import ProfileHoverCard from "@/components/profile-hover-card/profile-hover-card";
-import { useMutation } from "@tanstack/react-query";
-import { ReactType, reactToResource } from "@/api/requests/reactions/requests";
+import Report from "@/components/report/report";
+import { RelativeTime } from "@/components/time/Time";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import useReactHook from "@/hooks/use-react-hook";
+import { cn, formatNumberWithSuffix, guessMedia } from "@/lib/utils";
+import { PostType } from "@/types/post";
+import { motion } from 'framer-motion';
+import { Heart, MessageCircle, MoreHorizontalIcon, Share2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 
 const PostData = ({ post, className }: { post: PostType, className?: string }) => {
     const [repliesCount, setRepliesCount] = useState<number>(post?.replies_count ?? 0);
@@ -29,19 +30,15 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
         }
     }
 
-    const { mutate, isLoading: isReacting } = useMutation({
-        mutationFn: (data: ReactType) => reactToResource({ id: data?.id, resource: data?.resource, reaction: data?.reaction }),
-        onError: (error) => {
-            // If the API request fails and the user had reacted before, decrement the count.
-            if (reacted) {
-                setReactionCount((prev) => prev - 1);
-            }
-            setReacted((prevReacted) => !prevReacted);
-            // Handle the error if necessary
-            console.error('An error occurred:', error);
-        },
-    });
+    const onError = () => {
+        // If the API request fails and the user had reacted before, decrement the count.
+        if (reacted) {
+            setReactionCount((prev) => prev - 1);
+        }
+        setReacted((prevReacted) => !prevReacted);
+    }
 
+    const { mutate, isLoading: isReacting } = useReactHook(onError)
 
     const handleReplySuccess = () => {
         setRepliesCount((prev) => prev + 1);
@@ -69,10 +66,10 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
 
     return (
         <div className={cn(
-            "hover:cursor-pointer relative w-full max-w-[650px] rounded-md p-4 my-2 bg-foreground h-fit",
+            "hover:cursor-pointer w-full min-w-[350px] max-w-[650px] rounded-md p-4 pb-0 my-2 bg-foreground h-fit",
             className,
         )} onClick={pushToPost}>
-            <div className="relative">
+            <div className="relative z-10">
                 {post?.thread?.length > 0 ?
                     <span className="rounded-full absolute w-[3px] h-full left-5 top-12 bg-gray-400/50" />
                     :
@@ -85,14 +82,21 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
                             :
                             null
                         }
-                        <AvatarFallback>{`${post?.user?.first_name?.substr(0, 1)}${post?.user?.last_name?.substr(0, 1)}`}</AvatarFallback>
+                        <AvatarFallback>{`${post?.user?.first_name?.substring(0, 1)}${post?.user?.last_name?.substring(0, 1)}`}</AvatarFallback>
                     </Avatar>
                     <div className="flex items-baseline gap-x-2">
-                        <div>
-                            <ProfileHoverCard user={post?.user}>
-                                <Link onClick={(event) => event?.stopPropagation()} href={`/${post?.user?.user_name}`} className="font-medium no-underline hover:underline">{`${post?.user?.first_name} ${post?.user?.last_name}`}</Link>
-                            </ProfileHoverCard>
-                            <p className="text-xs text-muted-foreground">{`@${post?.user?.user_name}`}</p>
+                        <div className="flex items-center justify-between">
+                            <div className="z-50">
+                                <ProfileHoverCard user={post?.user}>
+                                    <Link onClick={(event) => event.stopPropagation()} href={`/${post?.user?.user_name}`} className="font-medium no-underline hover:underline">{`${post?.user?.first_name} ${post?.user?.last_name}`}</Link>
+                                </ProfileHoverCard>
+                                <p className="text-xs text-muted-foreground">{`@${post?.user?.user_name}`}</p>
+                            </div>
+                            <Report resource_id={post?.id} resource_type="post">
+                                <Button onClick={(event) => event.stopPropagation()} className="w-10 h-5 absolute right-1 top-1" variant="ghost" size="icon">
+                                    <MoreHorizontalIcon />
+                                </Button>
+                            </Report>
                         </div>
                         <span className="text-xs">•</span>
                         <p className="text-xs text-muted-foreground">{RelativeTime(post?.created_at)}</p>
@@ -105,7 +109,7 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
                             <Image className="w-full max-w-full object-cover h-auto rounded-md" src={post?.media} width="500" height="800" alt={post?.content ?? ""} />
                             :
                             guessMedia(post?.media) === "vid" ?
-                                <video controls className="w-full max-w-full object-cover h-auto rounded-md" src={post?.media}></video>
+                                <video controls className="w-full max-w-full object-cover h-auto rounded-md" src={post?.media} />
                                 :
                                 null
                         :
@@ -113,10 +117,10 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
                     }
                 </div>
             </div>
-            <section id="actions" className="w-full flex flex-row justify-around">
+            <section id={`${post?.id}-actions`} className="w-full flex flex-row justify-around">
                 <div className="space-x-1 w-fit flex flex-row items-center text-center">
                     <motion.button
-                        onClick={(event) => handleReaction({ event: event, data: { resource: "post", id: post?.id } })}
+                        onClick={(event) => handleReaction({ event: event, data: { resource_type: "post", resource_id: post?.id } })}
                         whileHover={{ scale: 1.2 }}
                         whileTap={{ scale: 0.9 }}
                     >
@@ -132,7 +136,7 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
                                 <p className="text-xs font-medium">{formatNumberWithSuffix(repliesCount)}</p>
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="w-full max-w-[700px] bg-foreground">
+                        <DialogContent className="w-full rounded-md max-w-[700px] bg-foreground px-1">
                             <CreatePost onSuccess={handleReplySuccess} placeholder="Reply to your hearts content" parent_id={post?.id} />
                         </DialogContent>
                     </Dialog>
@@ -143,25 +147,25 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
                     </Button>
                 </div>
             </section>
-            <section id="thread">
-                {post?.thread?.length > 0 ?
-                    post?.thread?.slice(0, 2)?.map((post, index) => {
-                        const showLine = index === 0 && post?.thread?.length > 1;
+            {post?.thread?.length > 0 ?
+                <section id={`${post?.id}-thread`}>
+                    {post?.thread?.slice(0, 2)?.map((post, index) => {
+                        const showLine = index == 0 && post?.thread?.length > 1;
                         return (
                             <section className="relative" key={post?.id}>
                                 {showLine ?
-                                    <span className="rounded-full absolute w-[3px] h-[80%] left-5 top-16 bg-gray-400/50" />
+                                    <span className="rounded-full absolute w-[3px] h-[80%] top-16 bg-gray-400/50" />
                                     :
                                     null
                                 }
-                                <ReplyPost post={post} parent_id={post?.id} />
+                                <ReplyPost post={post} />
                             </section>
                         )
-                    })
-                    :
-                    null
-                }
-            </section>
+                    })}
+                </section>
+                :
+                null
+            }
         </div>
     );
 }
