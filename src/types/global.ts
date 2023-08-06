@@ -5,13 +5,13 @@ export interface UserType {
     first_name: string,
     last_name: string,
     user_name: string,
-    email: string | undefined,
+    email?: string,
     bio: string | null,
-    sex: "MALE" | "FEMALE",
+    sex: "MALE" | "FEMALE" | null,
     profile_avatar: string | undefined,
     profile_cover: string | undefined,
     birth_date: string,
-    invited_by: number,
+    invited_by: string,
     phone_number: string | undefined | null,
     verified: boolean,
     followers_count: number,
@@ -20,6 +20,7 @@ export interface UserType {
     request_to_follow: boolean | null,
     requested_user_follows: boolean | null,
     requesting_user_follows: boolean | null,
+    is_private: boolean,
     has_rated: boolean,
     terms: boolean,
     is_active: boolean
@@ -27,13 +28,20 @@ export interface UserType {
     last_login: string,
 }
 
+export interface SimpleUserType {
+    id: number,
+    first_name: string,
+    last_name: string | null,
+    user_name: string,
+    profile_avatar: string | null,
+}
 
 export interface ReactionsType {
     user_reacted_with: string | null,
     reaction_count: {
-        reaction?: string,
-        count?: string,
-    }[]
+        reaction: string,
+        count: number,
+    }[] | []
 }
 
 
