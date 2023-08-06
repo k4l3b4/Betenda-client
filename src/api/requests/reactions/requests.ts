@@ -2,14 +2,14 @@ import axiosInstance from "@/api/axios-instance"
 import FormData from "form-data";
 
 export type ReactType = {
-    resource: 'article' | 'comment' | 'poem' | 'post' | 'saying';
-    id: number;
+    resource_type: 'article' | 'comment' | 'poem' | 'post' | 'saying';
+    resource_id: number;
     reaction?: string;
 }
 
-export const reactToResource = async ({ resource, id, reaction }: ReactType) => {
+export const reactToResource = async ({ resource_type, resource_id, reaction }: ReactType) => {
     const formData = new FormData();
     formData.append("reaction", reaction ?? "❤️");
-    const response = await axiosInstance.post(`reactions/react?resource_type=${resource}&resource_id=${id}`, formData)
+    const response = await axiosInstance.post(`reactions/react?resource_type=${resource_type}&resource_id=${resource_id}`, formData)
     return response?.data
 }
