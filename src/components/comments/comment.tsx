@@ -9,11 +9,12 @@ import useReactHook from "@/hooks/use-react-hook";
 import { cn, formatNumberWithSuffix } from "@/lib/utils";
 import { CommentType } from "@/types/comment";
 import { motion } from 'framer-motion';
-import { Heart, MoreHorizontal } from "lucide-react";
+import { Heart, MoreHorizontalIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Report from "@/components/report/report";
 
-const Comment = ({ comment, resource_type, resource_id }: { comment: CommentType, resource_type: string, resource_id: number }) => {
+const Comment = ({ comment, resource_type, resource_id, inputRef }: { comment: CommentType, resource_type: string, resource_id: number, inputRef: React.RefObject<HTMLInputElement>;}) => {
     const { handleReplyToComment, handleTopParent } = useReplyContext()
     const [reactionCount, setReactionCount] = useState<number>(comment?.reactions?.reaction_count[0]?.count ?? 0);
     const [reacted, setReacted] = useState<boolean>(comment?.reactions?.user_reacted_with ? true : false)
@@ -35,6 +36,10 @@ const Comment = ({ comment, resource_type, resource_id }: { comment: CommentType
     const HandleReplyFire = ({ parent, comment }: { parent: number, comment: CommentType }) => {
         handleReplyToComment(comment)
         handleTopParent(parent)
+        if (inputRef.current) {
+            inputRef.current.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+            inputRef.current.focus();
+        }
     }
 
     const handleReaction = ({ event, data }: { event: any, data: ReactType }) => {
@@ -77,9 +82,11 @@ const Comment = ({ comment, resource_type, resource_id }: { comment: CommentType
                                     </>
                                 }
                             </div>
-                            <Button className="w-10 h-5 absolute right-1 top-1" variant="ghost" size="icon">
-                                <MoreHorizontal />
-                            </Button>
+                            <Report resource_id={comment?.id} resource_type="comment">
+                                <Button onClick={(event) => event.stopPropagation()} className="w-10 h-5 absolute right-1 top-1" variant="ghost" size="icon">
+                                    <MoreHorizontalIcon />
+                                </Button>
+                            </Report>
                         </div>
                         <div className="text-sm" id="comment-id h-fit">
                             {comment?.comment}
