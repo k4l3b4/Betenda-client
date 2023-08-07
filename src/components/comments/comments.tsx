@@ -1,18 +1,17 @@
 'use client'
-import Comment from "./comment";
-import { InfiniteCommentsType } from "@/types/comment";
-import { AnimatePresence, motion } from "framer-motion";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getComments } from "@/api/requests/comment/requests";
-import { Fragment, useState } from "react";
-import Replies from "@/components/comments/replies";
-import { FrownIcon, GhostIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import CircularProgress from "@mui/material/CircularProgress";
-import { useUserContext } from "@/context/user-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useReplyContext } from "@/context/reply-context";
+import { useUserContext } from "@/context/user-context";
+import { InfiniteCommentsType } from "@/types/comment";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { FrownIcon, GhostIcon } from "lucide-react";
+import { Fragment, useRef } from "react";
+import Comment from "./comment";
 
 type CommentCompType = {
     resource_type: string,
@@ -21,10 +20,8 @@ type CommentCompType = {
 
 const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => {
     const { commentInput, handleInputChange, handleReplyToComment, handleSaveComment, handleTopParent } = useReplyContext();
-
+    const inputRef = useRef<HTMLInputElement>(null);
     const { User } = useUserContext()
-
-    const queryClient = useQueryClient()
     const {
         data,
         isError,
@@ -75,15 +72,16 @@ const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => 
                                         <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
                                         <AvatarFallback>{User?.first_name?.substring(0, 1) + User?.last_name?.substring(0, 1)}</AvatarFallback>
                                     </Avatar>
-                                    <div className="w-full flex items-center justify-between gap-x-2">
+                                    <section id="comment_input" className="w-full flex items-center justify-between gap-x-2">
                                         <Input
+                                            ref={inputRef}
                                             value={commentInput}
                                             onChange={handleInputChange}
                                             className="w-full bg-foreground font-medium py-4"
                                             placeholder="What do you think?" type="text"
                                         />
                                         <Button onClick={handleSaveComment} variant="ghost">Post</Button>
-                                    </div>
+                                    </section>
                                 </div>
                                 <div className="space-y-4">
                                     <AnimatePresence mode={"popLayout"}>
@@ -99,7 +97,7 @@ const Comments: React.FC<CommentCompType> = ({ resource_type, resource_id }) => 
                                                             exit={{ scale: 0.9, opacity: 0 }}
                                                             transition={{ type: "spring", duration: 0.5 }}
                                                         >
-                                                            <Comment comment={comment} resource_type={resource_type} resource_id={resource_id} />
+                                                            <Comment comment={comment} resource_type={resource_type} resource_id={resource_id} inputRef={inputRef} />
                                                         </motion.div>
                                                     </Fragment>
                                                 )
