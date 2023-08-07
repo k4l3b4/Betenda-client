@@ -1,3 +1,6 @@
+### No contributions for now
+if you are a person wanting to contribute please go to the issues tab all other contributions are paused for the time being as i push all the code i have written as to not get you guys irritated with to many merge conflicts
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 # Betenda client
