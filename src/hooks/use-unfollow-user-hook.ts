@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { unFollowUser } from "@/api/requests/user/requests";
 
-const useUnFollowUser = (id: number, onSuccess?: () => void) => {
+const useUnFollowUser = (userId: number | null, onSuccess?: (data: any) => void) => {
     const { mutate: unFollow, isLoading } = useMutation({
-        mutationFn: () => unFollowUser(id),
-        onSuccess: () => {
+        mutationFn: (id?: number) => unFollowUser(id ?? userId as number),
+        onSuccess: (data) => {
             if (onSuccess) {
-                onSuccess();
+                onSuccess(data);
             }
         }
     });

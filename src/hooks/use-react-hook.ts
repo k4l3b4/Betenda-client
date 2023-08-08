@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { ReactType, reactToResource } from "@/api/requests/reactions/requests";
-import { AxiosError } from "axios";
 
 
 const useReactHook = (onError?: () => void) => {

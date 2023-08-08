@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { acceptFollowRequest } from "@/api/requests/user/requests";
 
-const useAcceptFollowRequest = (id: number, onSuccess?: () => void) => {
+const useAcceptFollowRequest = (userId: number | null, onSuccess?: (data: any) => void) => {
     const { mutate: accept, isLoading } = useMutation({
-        mutationFn: () => acceptFollowRequest(id),
-        onSuccess: () => {
+        mutationFn: (id?: number) => acceptFollowRequest(id ?? userId as number),
+        onSuccess: (data) => {
             if (onSuccess) {
-                onSuccess();
+                onSuccess(data);
             }
         }
     });
