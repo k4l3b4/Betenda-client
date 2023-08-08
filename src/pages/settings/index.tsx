@@ -206,7 +206,7 @@ const Settings = () => {
 
     return (
         <SettingsLayout>
-            <Meta title="Settings" />
+            <Meta title="Account settings" />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 py-2 w-full max-w-md rounded">
                     <FormField

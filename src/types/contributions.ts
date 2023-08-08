@@ -78,6 +78,21 @@ export interface PoemType extends CreatePoemType {
     edited_at: string,
 }
 
+export interface PaginatedPoemType {
+    total_items: number,
+    page: number,
+    page_size: number,
+    results: PoemType[]
+}[]
+
+
+export interface InfinitePoemType {
+    pageParams: Record<number, number>[],
+    pages: PaginatedPoemType[]
+}
+
+
+
 
 export interface SimplePoemType {
     id: number,

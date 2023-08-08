@@ -33,40 +33,43 @@ const LoginForm = () => {
             <Meta title="Login to your existing account" />
             <div className="flex h-screen w-screen justify-center items-center px-1">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="bg-foreground px-4 py-10 space-y-8 w-full max-w-md rounded border">
-                        <h1 className="text-4xl font-semibold">Login</h1>
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem className="w-full">
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" placeholder="Email" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex justify-center max-w-[500px] bg-foreground px-2 py-10 w-full rounded-md border">
+                        <div className="max-w-md space-y-8">
 
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" placeholder="shadcn" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div>
-                            <Link className="text-sm" href="/auth/register">Forgot Password?</Link>
-                            <p className="text-sm">Don&apos;t have an account, <Link href="/auth/register">create an account</Link></p>
+                            <h1 className="text-4xl font-semibold">Login</h1>
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" placeholder="Email" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" placeholder="shadcn" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div>
+                                <Link className="text-sm" href="/auth/register">Forgot Password?</Link>
+                                <p className="text-sm">Don&apos;t have an account, <Link href="/auth/register">create an account</Link></p>
+                            </div>
+                            <Button type="submit">Submit</Button>
                         </div>
-                        <Button type="submit">Submit</Button>
                     </form>
                 </Form>
             </div>

@@ -15,4 +15,10 @@ export const siteConfig = {
     github: "https://github.com/shadcn/ui",
     docs: "https://ui.shadcn.com",
   },
+  link_options: {
+    formatHref: {
+      mention: (href: string) => "http://localhost:3000/" + href,
+      hashtag: (href: string) => "http://localhost:3000/tag/" + href.substr(1),
+    },
+  }
 }

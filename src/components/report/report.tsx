@@ -91,7 +91,7 @@ const Report = ({ resource_id, resource_type, children }: { resource_type: strin
                     </PopoverTrigger>
                     <PopoverContent className="w-52" align="end">
                         <DialogTrigger asChild>
-                            <Button className="w-full" onClick={(event) => event.stopPropagation()} variant="ghost">Report</Button>
+                            <Button className="w-full text-start flex" onClick={(event) => event.stopPropagation()} variant="ghost">Report</Button>
                         </DialogTrigger>
                     </PopoverContent>
                 </Popover>
@@ -104,8 +104,8 @@ const Report = ({ resource_id, resource_type, children }: { resource_type: strin
                                         <div className="w-full flex flex-col gap-y-2">
                                             {violationTypes?.map((violation) => {
                                                 return (
-                                                    <Button className="w-full text-start h-fit flex items-center justify-between rounded-md p-2" onClick={() => handleMutation(violation)} variant="ghost">
-                                                        <div key={violation.report_type}>
+                                                    <Button className="w-full text-start h-fit flex items-center justify-between rounded-md p-2" onClick={() => handleMutation(violation)} variant="ghost" key={violation.report_type}>
+                                                        <div>
                                                             <h2>{violation.report_type}</h2>
                                                             <p className="opacity-70">{violation?.report}</p>
                                                         </div>

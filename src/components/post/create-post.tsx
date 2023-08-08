@@ -1,21 +1,20 @@
 "use client"
+import { createPost } from "@/api/requests/post/requests"
+import FilePreview from "@/components/file-preview/file-preview"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { useUserContext } from "@/context/user-context"
+import { uploadProgress } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { Mic, Paperclip, SmilePlus } from "lucide-react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Card } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { Mic, Paperclip, SmilePlus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useUserContext } from "@/context/user-context";
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { toast } from "@/components/ui/use-toast"
-import { Input } from "../ui/input"
-import { useRef, useState } from "react"
-import FilePreview from "@/components/file-preview/file-preview"
-import { createPost } from "@/api/requests/post/requests"
-import { uploadProgress } from "@/lib/utils"
 
 const MAX_FILE_SIZE = 50000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -54,13 +53,29 @@ const FormSchema = z.object({
 })
 
 
-const CreatePost = ({ placeholder = "Anything new happened?, anything on your mind?", parent_id = undefined }: { placeholder?: string, parent_id?: number }) => {
-  const queryClient = useQueryClient()
+type CreatePostCompType = {
+  placeholder?: string,
+  parent_id?: number,
+  onSuccess?: (data: any) => void,
+  onError?: (error: any) => void,
+  key?: string
+}
+
+const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new happened?, anything on your mind?", onSuccess, onError, parent_id = undefined, key }) => {
   const { User } = useUserContext()
   const { mutate, isLoading, isError } = useMutation({
     mutationFn: createPost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    onSuccess: (data) => {
+      form.reset()
+      if (onSuccess) {
+        onSuccess(data); // Call the onSuccess prop if it's provided
+      }
+    },
+    onError: (err) => {
+      console.error(err);
+      if (onError) {
+        onError(err); // Call the onError prop if it's provided
+      }
     }
   })
   const progress = uploadProgress['create-post'];
@@ -135,12 +150,11 @@ const CreatePost = ({ placeholder = "Anything new happened?, anything on your mi
     mutate({ values: data, parent: parent_id })
   }
 
-
   return (
-    <Card className="flex w-[650px] flex-col gap-y-4 p-4 my-4 bg-foreground" id="create-post">
+    <Card className="flex w-full min-w-[350px] max-w-[650px] flex-col gap-y-4 p-4 my-4 bg-foreground" id="create-post">
       <Form {...form}>
         <form className="flex w-full items-start" onSubmit={form.handleSubmit(onSubmit)}>
-          <Avatar className="mt-1 mr-2">
+          <Avatar className="mt-1 mr-2 sml:hidden xxs:block">
             <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
             <AvatarFallback>{`${User?.first_name?.substr(0, 1)}${User?.last_name?.substr(0, 1)}`}</AvatarFallback>
           </Avatar>
@@ -204,7 +218,7 @@ const CreatePost = ({ placeholder = "Anything new happened?, anything on your mi
                   <SmilePlus className="h-5 w-5" />
                 </Button>
               </div>
-              <Button disabled={isLoading} type="submit" className="px-6">{isLoading ? `Posting... ${progress ? `${progress}%` : ""}` : "Post"}</Button>
+              <Button onClick={(event) => event?.stopPropagation()} disabled={isLoading} type="submit" className="px-6">{isLoading ? `Posting... ${progress ? `${progress}%` : ""}` : "Post"}</Button>
             </div>
           </div>
         </form>

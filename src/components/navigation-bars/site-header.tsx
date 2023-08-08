@@ -20,7 +20,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full border-t-0 border-b bg-foreground">
       {isMobile ?
         <div className="px-2 flex h-16 items-center justify-between space-x-4 sm:space-x-0">
-          <Button className="bg-black rounded-md p-2 h-8 w-8 text-white dark:bg-white dark:text-black text-xl font-extrabold skew-x-12">
+          <Button onClick={() => window.location.href = "/"} className="bg-black rounded-md p-2 h-8 w-8 text-white dark:bg-white dark:text-black text-xl font-extrabold skew-x-12">
             <p className="-skew-x-12">B</p>
           </Button>
           <div className="flex flex-1 items-center justify-end space-x-4">
@@ -52,9 +52,9 @@ export function SiteHeader() {
               </Link>
               <ThemeToggle />
               <Notifications>
-                <Button className="w-fit px-[10px]" size="icon" variant="ghost">
+                <div className={buttonVariants({ variant: "ghost", size: "icon", className: "w-fit px-[10px]" })}>
                   <Bell className="h-5 w-5" />
-                </Button>
+                </div>
               </Notifications>
               {
                 LoadingUser ?

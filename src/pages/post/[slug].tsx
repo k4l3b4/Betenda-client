@@ -96,7 +96,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     await queryClient.prefetchQuery({ queryKey: ['get_post', slug], queryFn: () => getPostBySlug({ slug: slug as string, sessionId: sessionId }) })
     return {
         props: {
-            dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+            dehydratedState: dehydrate(queryClient),
         },
     }
 }

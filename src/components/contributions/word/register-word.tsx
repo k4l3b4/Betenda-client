@@ -71,7 +71,7 @@ const RegisterWord = () => {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 py-10 space-y-8 w-full rounded border">
                     <h1 className="text-4xl font-semibold">Contribute a word!</h1>
-                    <div className="flex flex-row items-center justify-between gap-x-2">
+                    <div className="flex flex-col justify-center xsm:flex-row xsm:items-center gap-2">
                         <FormField
                             control={form.control}
                             name="source_language"
@@ -106,7 +106,7 @@ const RegisterWord = () => {
                             )}
                         />
                     </div>
-                    <div className="flex flex-row items-center gap-x-2">
+                    <div className="flex flex-col justify-center xsm:flex-row xsm:items-center gap-2">
                         <FormField
                             control={form.control}
                             name="target_language"
@@ -140,7 +140,7 @@ const RegisterWord = () => {
                             )}
                         />
                     </div>
-                    <div className="flex flex-row items-center gap-x-2">
+                    <div className="flex flex-col justify-center xsm:flex-row xsm:items-center gap-2">
                         <FormField
                             control={form.control}
                             name="synonym"
