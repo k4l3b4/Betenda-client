@@ -14,10 +14,9 @@ export const registerPoem = async (values: CreatePoemType) => {
             'Content-Type': values?.recording?.type
         }
     })
-    
+
     return response?.data
 }
-
 
 export const updatePoem = async ({ values, id }: { values: CreatePoemType, id: number }) => {
     const data = new FormData()
@@ -31,5 +30,16 @@ export const updatePoem = async ({ values, id }: { values: CreatePoemType, id: n
         }
     })
 
+    return response?.data
+}
+
+export const getPoems = async ({ pageParam = 1 }: { pageParam?: number }) => {
+    const response = await axiosInstance.get(`poems?page=${pageParam}`)
+    return response?.data
+}
+
+
+export const getPoemBySlug = async ({ slug }: { slug: string }) => {
+    const response = await axiosInstance.get(`poems/${slug}`)
     return response?.data
 }
