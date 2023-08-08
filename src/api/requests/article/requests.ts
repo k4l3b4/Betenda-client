@@ -27,6 +27,18 @@ export const getTrendingArticles = async () => {
     return response?.data
 }
 
+export const getArticlesByTag = async ({ tag, pageParam = 1 }: { tag: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`articles/articles_by_tag?tag=${tag}&page=${pageParam}`)
+    return response.data
+}
+
+
+export const searchArticles = async ({ slug, pageParam = 1 }: { slug: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`articles/search?search=${slug}&page=${pageParam}`)
+    return response.data
+}
+
+
 export const createArticle = async ({ values }: { values: CreateArticleType }) => {
     const data = new FormData()
     data.append('title', values.title);

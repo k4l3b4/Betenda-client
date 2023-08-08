@@ -26,17 +26,17 @@ export const getPostBySlug = async ({ slug, sessionId = "" }: { slug: string, se
     return response.data
 }
 
+export const getPostsByTag = async ({ tag, pageParam = 1 }: { tag: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`)
+    return response.data
+}
 export const getPostReplies = async ({ parent, pageParam = 1 }: { parent: number, pageParam?: number }) => {
     const response = await axiosInstance.get(`posts/get_replies?parent=${parent}&page=${pageParam}`)
     return response.data
 }
 
-export const getPostsByTag = async ({ tag, pageParam = 1, sessionId = "" }: { tag: string, pageParam?: number, sessionId?: string }) => {
-    const response = await axiosInstance.get(`posts/posts_by_tag?tag=${tag}&page=${pageParam}`, {
-        headers: {
-            Cookie: `sessionid=${sessionId}`,
-        },
-    })
+export const searchPosts = async ({ slug, pageParam = 1 }: { slug: string, pageParam?: number }) => {
+    const response = await axiosInstance.get(`posts/search?search=${slug}&page=${pageParam}`)
     return response.data
 }
 
