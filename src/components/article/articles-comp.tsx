@@ -4,6 +4,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { FrownIcon, GhostIcon } from "lucide-react";
 import ArticleData from "./article-data";
 import { InfiniteArticlesType } from "@/types/article";
+import DataLoading from "../app-ui-states/data-loading";
+import DataError from "../app-ui-states/data-error";
+import NoData from "../app-ui-states/no-data";
 
 type ArticleCompType = {
     loading: boolean,
@@ -25,32 +28,14 @@ const ArticlesComp: React.FC<ArticleCompType> = ({ loading, error, refetch, refe
         <>
             {
                 loading ?
-                    <div className={cn("flex flex-col justify-center items-center mt-5",
-                        classNames?.loading
-                    )}>
-                        <CircularProgress color="inherit" thickness={4} size="2.3rem" />
-                    </div>
+                    <DataLoading className={classNames?.loading} />
                     :
                     error ? (
-                        <div className={cn("flex flex-col justify-center items-center mt-3",
-                            classNames?.error
-                        )}>
-                            <div className="opacity-60 mb-4 flex flex-col items-center">
-                                <GhostIcon size={120} strokeWidth={1.3} />
-                                <h3>An unexpected Error occurred</h3>
-                            </div>
-                            <Button onClick={refetch}>{refetching ? "Retrying" : "Retry"}</Button>
-                        </div>
+                        <DataError className={classNames?.error} />
                     )
                         :
                         article[0]?.results?.length === 0 ? (
-                            <div className={cn("flex flex-col justify-center space-y-4 items-center mt-3 opacity-60",
-                                classNames?.noData
-                            )}>
-                                <FrownIcon size={120} strokeWidth={1.3} />
-                                <h3>Looks like there are no replies</h3>
-                                <h4>Maybe you can be the first!</h4>
-                            </div>
+                            <NoData className={classNames?.noData} message="Looks like there are no articles yet" />
                         )
                             :
                             article?.map(page =>

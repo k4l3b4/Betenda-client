@@ -1,11 +1,11 @@
 import DataError from "@/components/app-ui-states/data-error";
 import DataLoading from "@/components/app-ui-states/data-loading";
 import NoData from "@/components/app-ui-states/no-data";
-import PostData from "@/components/post/post-data";
+import PoemData from '@/components/poem/poem-data';
 import { cn } from "@/lib/utils";
-import { InfinitePostsType } from "@/types/post";
+import { InfinitePoemType } from "@/types/contributions";
 
-type PostCompType = {
+type ArticleCompType = {
     loading: boolean,
     error: boolean,
     refetch: () => void,
@@ -16,11 +16,11 @@ type PostCompType = {
         error?: string,
         noData?: string,
     }
-    data: InfinitePostsType
+    data: InfinitePoemType
 }
 
-const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching, data, classNames }) => {
-    const posts = data?.pages
+const PoemsComp: React.FC<ArticleCompType> = ({ loading, error, refetch, refetching, data, classNames }) => {
+    const poem = data?.pages
     return (
         <>
             {
@@ -28,17 +28,17 @@ const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching
                     <DataLoading className={classNames?.loading} />
                     :
                     error ? (
-                        <DataError className={classNames?.error} refetch={refetch} refetching={refetching} />
+                        <DataError className={classNames?.error} />
                     )
                         :
-                        posts[0]?.results?.length === 0 ? (
-                            <NoData className={classNames?.noData} message="Looks like there are no posts yet" />
+                        poem[0]?.results?.length === 0 ? (
+                            <NoData className={classNames?.noData} message="Looks like there are no poems yet" />
                         )
                             :
-                            posts?.map(page =>
-                                page?.results?.map((post) => {
+                            poem?.map(page =>
+                                page?.results?.map((poem) => {
                                     return (
-                                        <PostData className={cn(`${(post?.parent || classNames?.post) ? '' : 'hover-anim'}`, classNames?.post)} post={post} key={post?.id} />
+                                        <PoemData className={cn('hover-anim w-[650px]', classNames?.post)} poem={poem} key={poem?.id} />
                                     )
                                 }))
             }
@@ -46,4 +46,4 @@ const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching
     );
 }
 
-export default PostsComp;
+export default PoemsComp;
