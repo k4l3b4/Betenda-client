@@ -1,29 +1,32 @@
 import Hider from '@/components/comp-hider/hider'
-import { SiteHeader } from '@/components/site-header'
+import BottomNavigation from '@/components/navigation-bars/bottom-navigation'
+import RouteLoader from '@/components/route-loader/route-loader'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { ThemeProvider } from '@/components/theme-provider'
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
-import { Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { FC, useState } from 'react'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { UserProvider } from '@/context/user-context'
 import { Toaster } from '@/components/ui/toaster'
-import { Kanit } from 'next/font/google';
+import { UserProvider } from '@/context/user-context'
+import '@/styles/globals.css'
+import '@/styles/globals.scss'
+import { useMediaQuery } from '@mui/material'
+import { Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import type { AppProps } from 'next/app'
+import { Poppins } from 'next/font/google'
+import { FC, useState } from 'react'
 
 
-const kanit = Kanit({
+const poppins = Poppins({
   subsets: ['latin'],
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
   style: ['normal', 'italic'],
   display: 'swap',
-  variable: '--font-kanit',
+  variable: '--font-poppins',
   fallback: ['roboto'],
   preload: false
 });
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
-
+  const isMobile = useMediaQuery('(max-width:540px)');
   const [queryClient] = useState(() =>
     new QueryClient({
       defaultOptions: {
@@ -32,7 +35,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           refetchOnWindowFocus: false,
           staleTime: 60000,
           cacheTime: 90000,
-          networkMode: "always"
         },
       },
     }),
@@ -44,14 +46,19 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
         <QueryClientProvider client={queryClient}>
           <Hydrate state={pageProps.dehydratedState}>
             <UserProvider>
+              <RouteLoader />
               <Toaster />
-              <div className="relative flex min-h-screen flex-col font-kanit">
-                <Hider routes={['/auth/login', '/auth/login/', '/auth/register', '/auth/register/', '/auth/forgot-password', '/auth/forgot-password/']}>
-                  <SiteHeader />
-                </Hider>
-                <main>
-                  <Component {...pageProps} />
-                </main>
+              <div suppressHydrationWarning className={`${poppins.variable} relative flex min-h-screen flex-col justify-between`}>
+                <div>
+                  <main>
+                    <Component {...pageProps} />
+                  </main>
+                </div>
+                {isMobile &&
+                  <Hider routes={['/auth/login', '/auth/login/', '/auth/register', '/auth/register/', '/auth/forgot-password', '/auth/forgot-password/']}>
+                    <BottomNavigation />
+                  </Hider>
+                }
               </div>
             </UserProvider>
           </Hydrate>

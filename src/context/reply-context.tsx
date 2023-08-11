@@ -17,6 +17,8 @@ interface ReplyContextValue {
     replying: boolean,
     commentError: boolean,
     replyError: boolean,
+    inputError: string,
+    setInputError: React.Dispatch<React.SetStateAction<string>>,
 }
 
 const ReplyContext = createContext<ReplyContextValue | undefined>(undefined);
@@ -26,6 +28,7 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
     const [commentId, setCommentId] = useState<number | null>(null);
     const [commentInput, setCommentInput] = useState<string>('');
     const [topParentId, setTopParentId] = useState<number | null>(null);
+    const [inputError, setInputError] = useState<string>("")
     console.log(topParentId)
     const queryClient = useQueryClient()
 
@@ -92,7 +95,6 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
         }
     })
 
-
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -143,8 +145,12 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
             let commentText = commentInput;
             if (username && commentId !== null) {
                 const regex = new RegExp(`^replying to: @${username} `);
-                commentText = commentText.replace(regex, '');
-                reply({ resource_type: resource_type, resource_id: resource_id, parent: commentId as number, values: { comment: commentText } })
+                commentText = commentText.replace(regex, '').trim();
+                if (commentText) {
+                    reply({ resource_type: resource_type, resource_id: resource_id, parent: commentId as number, values: { comment: commentText } })
+                } else {
+                    setInputError("We don't save empty comments.")
+                }
                 console.log(`Replying to comment ${commentId} with text: ${commentInput} on parent ${topParentId}`);
             } else {
                 comment({ resource_type: resource_type, resource_id: resource_id, values: { comment: commentText } })
@@ -162,6 +168,8 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
         username,
         commentId,
         commentInput,
+        inputError,
+        setInputError,
         handleInputChange,
         handleReplyToComment,
         handleSaveComment,

@@ -36,9 +36,9 @@ const Comment = ({ comment, resource_type, resource_id, inputRef }: { comment: C
     const HandleReplyFire = ({ parent, comment }: { parent: number, comment: CommentType }) => {
         handleReplyToComment(comment)
         handleTopParent(parent)
-        if (inputRef.current) {
-            inputRef.current.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-            inputRef.current.focus();
+        if (inputRef?.current) {
+            inputRef?.current.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+            inputRef?.current.focus();
         }
     }
 
@@ -111,7 +111,7 @@ const Comment = ({ comment, resource_type, resource_id, inputRef }: { comment: C
             {comment?.reply_count > 0 && <button className="ml-[72px] mt-2 opacity-70 text-sm" onClick={handleReplyOpen}>{openReply ? `Hide replies` : `View replies(${comment?.reply_count})`}</button>}
             {(openReply && comment?.reply_count > 0) &&
                 <section className="ml-16">
-                    <Replies resource_type={resource_type} resource_id={resource_id} parent_id={comment?.id} />
+                    <Replies inputRef={inputRef} resource_type={resource_type} resource_id={resource_id} parent_id={comment?.id} />
                 </section>
             }
         </>

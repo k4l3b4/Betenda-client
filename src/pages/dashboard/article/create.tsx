@@ -299,7 +299,7 @@ const CreateArticle = () => {
                     suggestions={suggestion} // Add suggestions if needed
                     onAdd={onAuthorAdd} // i know what to expect so i'm just going to ignore the error
                     onDelete={onAuthorDelete}
-                    placeholder="Add users that contributed"
+                    placeholder="Add contributors"
                   />
                 </FormControl>
                 <FormMessage />

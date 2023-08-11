@@ -19,6 +19,7 @@ module.exports = {
         "2xs": "340px",
         "xxs": "440px",
         "xsm": "540px",
+        "sbr": "840px",
         "2xl": "1400px",
       },
       fontFamily: {

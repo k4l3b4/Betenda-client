@@ -1,6 +1,8 @@
 import { UserType } from '@/types/global';
 import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
+import { useUserContext } from '@/context/user-context';
+import { cn } from '@/lib/utils';
 
 const ButtonTypes = {
     FRIENDS: 'Friends',
@@ -13,14 +15,16 @@ const ButtonTypes = {
 
 type ProfileButtonType = {
     user: UserType | null;
-    follow: () => void;
-    unfollow: () => void;
-    accept: () => void;
+    follow: (id?: number) => void;
+    unfollow: (id?: number) => void;
+    accept: (id?: number) => void;
     fulfilling: boolean;
+    className?: string
 
 }
 
-const ProfileButtonFormatter: React.FC<ProfileButtonType> = ({ user, follow, unfollow, accept, fulfilling }) => {
+const ProfileButtonFormatter: React.FC<ProfileButtonType> = ({ user, follow, unfollow, accept, fulfilling, className }) => {
+    const { User, LoadingUser } = useUserContext()
     const [loading, setLoading] = useState<boolean>(true);
     const [buttonText, setButtonText] = useState<string>(ButtonTypes.FOLLOW);
     const isUserFollowingRequestedUser = user?.requesting_user_follows;
@@ -70,9 +74,12 @@ const ProfileButtonFormatter: React.FC<ProfileButtonType> = ({ user, follow, unf
                 break;
         }
     };
+    if (loading || LoadingUser || User?.id === user?.id) {
+        return null
+    }
 
     return (
-        <Button onClick={handleButtonClick} disabled={(loading || fulfilling)}>{(loading || fulfilling) ? "Loading..." : buttonText}</Button>
+        <Button className={cn("whitespace-nowrap", className)} onClick={handleButtonClick} disabled={(loading || fulfilling)}>{fulfilling ? "Loading..." : buttonText}</Button>
     );
 };
 

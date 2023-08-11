@@ -29,7 +29,6 @@ const useWebSocket = <T, E>(endpoint: string, options?: WebSocketOptions<E>): We
         const { onOpen, onClose, onError, onMessage } = options || {};
 
         socket.addEventListener('open', (event) => {
-            console.info('WebSocket connection established');
             if (onOpen) {
                 onOpen(event as E);
             }

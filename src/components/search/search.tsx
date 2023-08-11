@@ -13,7 +13,7 @@ type E = {
     e: React.MouseEvent<HTMLButtonElement>
 }
 
-const SearchComp = ({ placeHolder = "Search...", className, redirect }: { placeHolder?: string, className?: string, redirect: string }) => {
+const SearchComp = ({ placeHolder = "Search...", classNames, redirect }: { placeHolder?: string, classNames?: { container?: string, input?: string, button?: string }, redirect: string }) => {
     const [search, setSearch] = useState<string>("")
     const router = useRouter();
     const pathname = usePathname()
@@ -41,11 +41,11 @@ const SearchComp = ({ placeHolder = "Search...", className, redirect }: { placeH
     return (
         <>
             <div className={cn(
-                className,
+                classNames?.container,
                 "relative flex w-full max-w-sm flex-row items-center justify-end space-x-1")}
             >
-                <Input className="w-full placeholder:font-medium" placeholder={placeHolder} value={search?.replaceAll('-', ' ')} type="text" onChange={(e: any) => handelSearchChange(e)} onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.code === "Enter") { handleSearchClick(e) } }} />
-                <Button className="absolute" onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleSearchClick(event)} variant={null}><Search /></Button>
+                <Input className={cn("w-full placeholder:font-medium", classNames?.input)} placeholder={placeHolder} value={search?.replaceAll('-', ' ')} type="text" onChange={(e: any) => handelSearchChange(e)} onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.code === "Enter") { handleSearchClick(e) } }} />
+                <Button className={cn("absolute", classNames?.button)} onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleSearchClick(event)} variant={null}><Search /></Button>
             </div>
         </>
     );

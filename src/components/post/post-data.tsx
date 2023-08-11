@@ -11,14 +11,15 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import useReactHook from "@/hooks/use-react-hook";
 import { cn, formatNumberWithSuffix, guessMedia } from "@/lib/utils";
 import { PostType } from "@/types/post";
-import { motion } from 'framer-motion';
-import { Heart, MessageCircle, MoreHorizontalIcon, Share2 } from "lucide-react";
+import { Bookmark, HeartIcon, MessageCircle, MoreHorizontalIcon, Share2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { Separator } from "../ui/separator";
+import TippyTool from "../ui-utils/tooltip";
 
-const PostData = ({ post, className }: { post: PostType, className?: string }) => {
+const PostData = ({ post, classNames }: { post: PostType, classNames?: { container?: string, profile?: string, content?: string, actions?: string } }) => {
     const [repliesCount, setRepliesCount] = useState<number>(post?.replies_count ?? 0);
     const [reactionCount, setReactionCount] = useState<number>(post?.reactions?.reaction_count[0]?.count ?? 0);
 
@@ -50,12 +51,13 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
             // make the button inactive while the mutation is ongoing
             return;
         }
-
         // If the user hasn't reacted before, increment the count immediately before the API request.
         if (!reacted) {
             setReactionCount((prev) => prev + 1);
         } else {
-            setReactionCount((prev) => prev - 1);
+            if (reactionCount > 0) {
+                setReactionCount((prev) => prev - 1);
+            }
         }
         // Toggle the reacted state.
         setReacted((prevReacted) => !prevReacted);
@@ -65,104 +67,120 @@ const PostData = ({ post, className }: { post: PostType, className?: string }) =
 
 
     return (
-        <div className={cn(
-            "hover:cursor-pointer w-full min-w-[350px] max-w-[650px] rounded-md p-4 pb-0 my-2 bg-foreground h-fit",
-            className,
-        )} onClick={pushToPost}>
-            <div className="relative z-10">
-                {post?.thread?.length > 0 ?
-                    <span className="rounded-full absolute w-[3px] h-full left-5 top-12 bg-gray-400/50" />
-                    :
-                    null
-                }
-                <div className="flex items-center gap-x-2" id="user">
-                    <Avatar>
-                        {post?.user?.profile_avatar ?
-                            <AvatarImage src={post?.user?.profile_avatar} alt={post?.user?.user_name} />
+        <div className="w-full max-w-[650px]">
+            <div className={cn(
+                "hover:cursor-pointer w-full min-w-[300px] max-w-[650px] rounded-md xsm:pl-4 pt-4 my-2 h-fit",
+                classNames?.container,
+            )} onClick={pushToPost}>
+                <div className="relative z-10">
+                    <div className={cn("flex flex-row items-start gap-x-2", classNames?.profile)} id="user">
+                        <Avatar>
+                            {post?.user?.profile_avatar ?
+                                <AvatarImage src={post?.user?.profile_avatar} alt={post?.user?.user_name} />
+                                :
+                                null
+                            }
+                            <AvatarFallback>{`${post?.user?.first_name?.substring(0, 1)}${post?.user?.last_name?.substring(0, 1)}`}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex items-baseline justify-between gap-x-2">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <ProfileHoverCard user={post?.user}>
+                                        <button className="flex items-center z-50 space-x-2">
+                                            <Link onClick={(event) => event.stopPropagation()} href={`/${post?.user?.user_name}`} className="font-medium no-underline hover:underline line-clamp-1">{`${post?.user?.first_name} ${post?.user?.last_name}`}</Link>
+                                            <p className="text-xs text-muted-foreground">{`@${post?.user?.user_name}`}</p>
+                                        </button>
+                                    </ProfileHoverCard>
+                                    <p className="text-xs text-muted-foreground line-clamp-1">{RelativeTime(post?.created_at)}</p>
+                                </div>
+                                <Report resource_id={post?.id} resource_type="post">
+                                    <Button onClick={(event) => event.stopPropagation()} className="w-10 h-5 absolute right-1 top-1" variant="ghost" size="icon">
+                                        <MoreHorizontalIcon />
+                                    </Button>
+                                </Report>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={cn("relative ml-10 max-w-full p-2 text-sm", classNames?.content)} id="post">
+                        {post?.thread?.length > 0 ?
+                            <div className="absolute rounded-full mt-[0px] w-[3px] h-full -left-[22px] bg-gray-400/50" />
                             :
                             null
                         }
-                        <AvatarFallback>{`${post?.user?.first_name?.substring(0, 1)}${post?.user?.last_name?.substring(0, 1)}`}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex items-baseline gap-x-2">
-                        <div className="flex items-center justify-between">
-                            <div className="z-50">
-                                <ProfileHoverCard user={post?.user}>
-                                    <Link onClick={(event) => event.stopPropagation()} href={`/${post?.user?.user_name}`} className="font-medium no-underline hover:underline">{`${post?.user?.first_name} ${post?.user?.last_name}`}</Link>
-                                </ProfileHoverCard>
-                                <p className="text-xs text-muted-foreground">{`@${post?.user?.user_name}`}</p>
-                            </div>
-                            <Report resource_id={post?.id} resource_type="post">
-                                <Button onClick={(event) => event.stopPropagation()} className="w-10 h-5 absolute right-1 top-1" variant="ghost" size="icon">
-                                    <MoreHorizontalIcon />
-                                </Button>
-                            </Report>
-                        </div>
-                        <span className="text-xs">•</span>
-                        <p className="text-xs text-muted-foreground">{RelativeTime(post?.created_at)}</p>
-                    </div>
-                </div>
-                <div className="ml-10 max-w-full p-2 text-sm" id="post">
-                    <p className="text-base mb-1 link">{convertTextToLinks(post?.content as string)}</p>
-                    {post?.media ?
-                        guessMedia(post?.media) === "img" ?
-                            <Image className="w-full max-w-full object-cover h-auto rounded-md" src={post?.media} width="500" height="800" alt={post?.content ?? ""} />
-                            :
-                            guessMedia(post?.media) === "vid" ?
-                                <video controls className="w-full max-w-full object-cover h-auto rounded-md" src={post?.media} />
+                        <p className="text-base mb-1 link">{convertTextToLinks(post?.content as string)}</p>
+                        {post?.media ?
+                            guessMedia(post?.media) === "img" ?
+                                <Image className="w-full max-w-full object-cover h-auto rounded-lg" src={post?.media} width="500" height="800" alt={post?.content ?? ""} />
                                 :
-                                null
-                        :
-                        null
-                    }
-                </div>
-            </div>
-            <section id={`${post?.id}-actions`} className="w-full flex flex-row justify-around">
-                <div className="space-x-1 w-fit flex flex-row items-center text-center">
-                    <motion.button
-                        onClick={(event) => handleReaction({ event: event, data: { resource_type: "post", resource_id: post?.id } })}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
-                    >
-                        <Heart fill={reacted ? "#DB2776" : "transparent"} className={cn("h-5 w-5", reacted ? "text-pink-600" : "")} />
-                    </motion.button>
-                    <p className="text-xs font-medium">{formatNumberWithSuffix(reactionCount)}</p>
-                </div>
-                <div className="flex flex-row items-center text-center">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button onClick={(event) => event?.stopPropagation()} className="space-x-1 w-fit" variant={null} size="icon">
-                                <MessageCircle className="h-5 w-5" />
-                                <p className="text-xs font-medium">{formatNumberWithSuffix(repliesCount)}</p>
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="w-full rounded-md max-w-[700px] bg-foreground px-1">
-                            <CreatePost onSuccess={handleReplySuccess} placeholder="Reply to your hearts content" parent_id={post?.id} />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                <div>
-                    <Button variant={null} size="icon">
-                        <Share2 className="h-5 w-5" />
-                    </Button>
-                </div>
-            </section>
-            {post?.thread?.length > 0 ?
-                <section id={`${post?.id}-thread`}>
-                    {post?.thread?.slice(0, 2)?.map((post, index) => {
-                        const showLine = index == 0 && post?.thread?.length > 1;
-                        return (
-                            <section className="relative" key={post?.id}>
-                                {showLine ?
-                                    <span className="rounded-full absolute w-[3px] h-[80%] top-16 bg-gray-400/50" />
+                                guessMedia(post?.media) === "vid" ?
+                                    <video controls onClick={(event) => event.stopPropagation()} muted className="w-full max-w-full object-cover h-auto rounded-lg" src={post?.media} />
                                     :
                                     null
-                                }
+                            :
+                            null
+                        }
+                        <section onClick={(event) => event.stopPropagation()} id={`${post?.id}-actions`} className={cn("relative w-full flex flex-row justify-between mt-2", classNames?.actions)}>
+                            <div className="group space-x-1.5 w-fit flex flex-row items-center text-center opacity-80">
+                                <TippyTool text="Reply">
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <button onClick={(event) => event?.stopPropagation()} className="left-0 w-8 h-8 rounded-full group-hover:bg-green-500/20 flex items-center justify-center">
+                                                <MessageCircle className={cn("h-[1.2em] w-[1.2em] group-hover:text-green-600", reacted ? "text-green-600 fill-green-600" : "")} />
+                                            </button>
+                                        </DialogTrigger>
+                                        <DialogContent className="w-full rounded-md max-w-[700px] bg-foreground px-1">
+                                            <CreatePost onSuccess={handleReplySuccess} placeholder="Reply to your hearts content" parent_id={post?.id} />
+                                        </DialogContent>
+                                    </Dialog>
+                                </TippyTool>
+                                <p className={"text-xs font-normal opacity-80 group-hover:text-green-600"}>{formatNumberWithSuffix(repliesCount)}</p>
+                            </div>
+                            <div className="group space-x-1.5 w-fit flex flex-row items-center text-center opacity-80">
+                                <TippyTool text="React">
+                                    <button
+                                        onClick={(event) => handleReaction({ event: event, data: { resource_type: "post", resource_id: post?.id } })}
+                                        className="left-0 w-8 h-8 rounded-full group-hover:bg-pink-500/20 flex items-center justify-center"
+                                    >
+                                        <HeartIcon className={cn("h-[1.2em] w-[1.2em] group-hover:text-pink-600", reacted ? "text-pink-600 fill-pink-600" : "")} />
+                                    </button>
+                                </TippyTool>
+                                <p className={cn("text-xs font-normal opacity-80 group-hover:text-pink-600", reacted ? "text-pink-600" : "")}>{formatNumberWithSuffix(reactionCount)}</p>
+                            </div>
+                            <div className="group opacity-80">
+                                <TippyTool text="Share">
+                                    <button className="left-0 w-8 h-8 rounded-full group-hover:bg-yellow-500/20 flex items-center justify-center">
+                                        <Share2 className="h-[1.2em] w-[1.2em] group-hover:text-yellow-600" />
+                                    </button>
+                                </TippyTool>
+                            </div>
+                            <div className="group opacity-80">
+                                <TippyTool text="Bookmark">
+                                    <button className="left-0 w-8 h-8 rounded-full group-hover:bg-cyan-500/20 flex items-center justify-center">
+                                        <Bookmark className="h-[1.2em] w-[1.2em] group-hover:text-cyan-600" />
+                                    </button>
+                                </TippyTool>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            {post?.thread?.length > 0 ? (
+                <section id={`${post?.id}-thread`}>
+                    {post?.thread?.slice(0, 2)?.map((post, index) => {
+                        const showLine = index === 0 && post?.thread?.length > 1;
+                        return (
+                            <section className="relative" key={post?.id}>
+                                {showLine ? (
+                                    <div className="absolute rounded-full mt-[0px] w-[3px] h-full -left-[22px] bg-gray-400/50" />
+                                ) : null}
                                 <ReplyPost post={post} />
                             </section>
-                        )
+                        );
                     })}
                 </section>
+            ) : null}
+            {post?.hasOwnProperty('thread') ?
+                <Separator className="bg-slate-400 dark:bg-slate-700 bg-opacity-50 dark:bg-opacity-50" />
                 :
                 null
             }

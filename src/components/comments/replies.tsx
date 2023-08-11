@@ -6,20 +6,16 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { getComments } from "@/api/requests/comment/requests";
 import { CircularProgress } from "@mui/material";
 import { useReplyContext } from "@/context/reply-context";
+import { useRef } from "react";
 
 type RepliesCompType = {
     parent_id: number,
     resource_type: string,
     resource_id: number,
+    inputRef: React.RefObject<HTMLInputElement>;
 }
 
-const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent_id }) => {
-    const {
-        handleReplyToComment,
-        handleTopParent
-    } = useReplyContext();
-
-    const queryClient = useQueryClient()
+const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent_id, inputRef }) => {
     const {
         data,
         isError,
@@ -69,7 +65,7 @@ const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent
                                                     exit={{ scale: 0.8, opacity: 0 }}
                                                     transition={{ type: "spring", duration: 0.5 }}
                                                 >
-                                                    <Comment comment={comment}/>
+                                                    <Comment inputRef={inputRef} comment={comment} resource_type={resource_type} resource_id={resource_id} />
                                                 </motion.div>
                                             )
                                         }))}

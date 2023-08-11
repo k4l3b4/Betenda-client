@@ -16,7 +16,7 @@ const formSchema = z.object({
 })
 
 const LoginForm = () => {
-    const { LoginUser } = useUserContext()
+    const { LoginUser, LoginLoading } = useUserContext()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -68,7 +68,7 @@ const LoginForm = () => {
                                 <Link className="text-sm" href="/auth/register">Forgot Password?</Link>
                                 <p className="text-sm">Don&apos;t have an account, <Link href="/auth/register">create an account</Link></p>
                             </div>
-                            <Button type="submit">Submit</Button>
+                            <Button disabled={LoginLoading} type="submit">{LoginLoading ? "Submitting" : "Submit"}</Button>
                         </div>
                     </form>
                 </Form>

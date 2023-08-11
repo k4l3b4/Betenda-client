@@ -62,8 +62,8 @@ const Post = () => {
                     </div>
                     :
                     <>
-                        <PostData post={postData} />
-                        <CreatePost onSuccess={(data) => onMutationSuccess(data)} parent_id={postData?.id} placeholder={`Reply to ${postData?.user?.first_name}'s post`} />
+                        <PostData classNames={{ content: "ml-0 px-0 py-2" }} post={postData} />
+                        <CreatePost className="bg-transparent" onSuccess={(data) => onMutationSuccess(data)} parent_id={postData?.id} placeholder={`Reply to ${postData?.user?.first_name}'s post`} />
                     </>
                 }
                 <h2 className="text-start w-full">Replies</h2>
@@ -73,7 +73,7 @@ const Post = () => {
                     </div>
                     :
                     <>
-                        <PostsComp classNames={{ post: "hover-anim" }} data={repliesData} error={repliesError} loading={loadingReplies} refetch={refetch} refetching={isRefetching} />
+                        <PostsComp data={repliesData} error={repliesError} loading={loadingReplies} refetch={refetch} refetching={isRefetching} noData={{ message: "Looks like no on has replied yet" }} />
                     </>
                 }
             </section>
