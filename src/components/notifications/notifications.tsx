@@ -1,45 +1,104 @@
-import useWebSocket from "@/hooks/useWebSocker";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { getNotifications } from "@/api/requests/notification/requests";
+import useWebSocket from "@/hooks/use-web-socket-hook";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getNotifications, readNotifications } from "@/api/requests/notification/requests";
 import { InfiniteNotificationsType, NotificationType } from "@/types/notification";
 import NotiComp from "./noti-comp";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const Notifications = ({ children }: { children: React.ReactElement }) => {
+const Notifications = ({ classNames }: { classNames?: { container?: string, body?: string } }) => {
     const queryClient = useQueryClient();
-    const { data, isError, isLoading, isFetchingNextPage, refetch, isRefetching, fetchNextPage, hasNextPage } = useInfiniteQuery({ queryKey: ['notifications'], queryFn: getNotifications, getNextPageParam: (lastPage) => lastPage?.data?.page < lastPage?.data?.pages_count ? lastPage?.data?.page + 1 : undefined, })
+
+    const { mutate } = useMutation({ mutationFn: readNotifications })
+
+    const { data, isError, isLoading, isFetchingNextPage, refetch, isRefetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
+        {
+            queryKey: ['notifications'],
+            queryFn: getNotifications,
+            getNextPageParam: (lastPage) => lastPage?.page < lastPage?.pages_count ? lastPage?.page + 1 : undefined,
+        }
+    )
+
     const notifications = data as InfiniteNotificationsType
-    const [updatedNotifications, setUpdatedNotifications] = useState<InfiniteNotificationsType | null>(null)
+
+
+    useEffect(() => {
+        if (notifications) {
+            const lastPage = notifications.pages[notifications.pages.length - 1];
+            const unreadNotifications = lastPage.results.notifications.filter(notification => !notification.is_read);
+
+            if (unreadNotifications.length > 0) {
+                const unreadIds = unreadNotifications.map(notification => notification.id).join(',');
+                if (unreadIds) {
+                    mutate({ ids: unreadIds },
+                        {
+                            onSuccess: () => {
+                                queryClient.setQueryData<InfiniteNotificationsType | undefined>(['notifications'], (prevData) => {
+                                    if (!prevData) return prevData;
+
+                                    const newData = { ...prevData };
+                                    const lastPage = newData.pages[newData.pages.length - 1];
+
+                                    const unreadIdsArray: number[] = unreadIds.split(',').map(id => parseInt(id));
+
+                                    lastPage.results.notifications.forEach(notification => {
+                                        if (unreadIdsArray.includes(notification.id)) {
+                                            notification.is_read = true;
+                                        }
+                                    });
+
+                                    lastPage.results.unread_count -= unreadNotifications.length;
+
+                                    return newData;
+                                });
+                            }
+                        }
+                    );
+                }
+            }
+        }
+    }, [notifications, mutate]);
+
+
 
     const webSocketInstance = useWebSocket('notifications/');
     const { data: realtime, error } = webSocketInstance;
     const realtimeNotification = realtime as NotificationType
-    console.log(JSON.stringify(realtimeNotification))
 
+    const { ref, inView } = useInView({
+        initialInView: false,
+        rootMargin: '0px 0px 50px 0px'
+    })
 
     useEffect(() => {
-        // When new real-time notifications are received, update the state.
+        if (inView) {
+            fetchNextPage()
+        }
+        console.log(inView)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [inView])
+
+    useEffect(() => {
         if (realtimeNotification && realtimeNotification.id) {
-            // Fetch the current query data
             const currentData = queryClient.getQueryData<InfiniteNotificationsType>(['notifications']);
 
             if (currentData) {
-                // Add the new notification to the first page
                 const updatedResults = [
                     realtimeNotification,
-                    ...(currentData.pages[0]?.results || []),
+                    ...(currentData.pages[0]?.results?.notifications || []),
                 ];
-
-                // Update the query data with the new notification added to the first page
                 queryClient.setQueryData<InfiniteNotificationsType>(['notifications'], {
                     pages: [
                         {
-                            total_items: currentData.pages[0]?.total_items, // Preserve the total_items value
-                            page: currentData.pages[0]?.page, // Preserve the page value
-                            page_size: currentData.pages[0]?.page_size, // Preserve the page_size value
-                            results: updatedResults, // Update the property name to "results"
+                            total_items: currentData.pages[0]?.total_items,
+                            page: currentData.pages[0]?.page,
+                            page_size: currentData.pages[0]?.page_size,
+                            results: {
+                                unread_count: currentData.pages[0]?.results?.unread_count + 1,
+                                notifications: updatedResults
+                            },
                         },
                         ...currentData.pages.slice(1),
                     ],
@@ -52,62 +111,32 @@ const Notifications = ({ children }: { children: React.ReactElement }) => {
 
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger className="w-fit" asChild>
-                {children}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="h-full max-h-[500px] overflow-y-auto mr-16 w-80">
-                <DropdownMenuLabel>
-                    <h1 className="text-lg font-bold">Notifications</h1>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Tabs defaultValue="all" className="w-full max-w-[320px]">
-                    <TabsList className="h-fit flex flex-row flex-wrap justify-start items-center gap-2">
-                        <TabsTrigger className="px-1.5 h-6" value="all">
-                            All
-                        </TabsTrigger>
-                        <TabsTrigger className="px-1.5 h-6" value="replies">
-                            Replies
-                        </TabsTrigger>
-                        <TabsTrigger className="px-1.5 h-6" value="mentions">
-                            Mentions
-                        </TabsTrigger>
-                        <TabsTrigger className="px-1.5 h-6" value="comments">
-                            Comments
-                        </TabsTrigger>
-                        <TabsTrigger className="px-1.5 h-6" value="friend_requests">
-                            Friend requests
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent className="w-full" value="all">
-                        <DropdownMenuGroup>
-                            <NotiComp data={notifications} loading={isLoading} error={isError} refetch={refetch} refetching={isRefetching} />
-                        </DropdownMenuGroup>
-                    </TabsContent>
-                    <TabsContent className="w-full" value="replies">
-                        <DropdownMenuGroup>
-                            replies
-                        </DropdownMenuGroup>
-                    </TabsContent>
-                    <TabsContent className="w-full" value="mentions">
-                        <DropdownMenuGroup>
-                            mentions
-                        </DropdownMenuGroup>
-                    </TabsContent>
-                    <TabsContent className="w-full" value="comments">
-                        <DropdownMenuGroup>
-                            comments
-                        </DropdownMenuGroup>
-                    </TabsContent>
-                    <TabsContent className="w-full" value="friend_requests">
-                        <DropdownMenuGroup>
-                            friend requests
-                        </DropdownMenuGroup>
-                    </TabsContent>
-                </Tabs>
-                <DropdownMenuSeparator />
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="w-full h-full">
+            {notifications?.pages?.[0]?.results?.unread_count > 0 &&
+                <span className="z-50 rounded-full text-[11px] font-medium absolute h-4 w-4 bg-red-500 flex items-center justify-center ring ring-foreground top-0.5 left-1 text-white">{notifications?.pages?.[0]?.results?.unread_count}</span>
+            }
+
+            <h2 className="mt-4">{notifications?.pages?.[0]?.results?.unread_count > 0 ? notifications?.pages?.[0]?.results?.unread_count : "No New"} Notifications</h2>
+            <div className={cn("my-6 overflow-y-auto space-y-6 right-0 px-2 w-full h-full", classNames?.body)}>
+                <NotiComp data={notifications} loading={isLoading} error={isError} refetch={refetch} refetching={isRefetching} />
+                {hasNextPage &&
+                    <div ref={ref} className="flex justify-center">
+                        <Button
+                            variant="secondary"
+                            className="justify-self-center my-5 disabled:cursor-not-allowed disabled:opacity-80 font-semibold px-5 py-2 rounded text-opacity-90"
+                            onClick={() => fetchNextPage()}
+                            disabled={!hasNextPage || isFetchingNextPage}
+                        >
+                            {isFetchingNextPage
+                                ? 'Loading more...'
+                                : hasNextPage
+                                    ? 'Load more'
+                                    : 'All caught up'}
+                        </Button>
+                    </div>
+                }
+            </div>
+        </div>
     );
 }
 
