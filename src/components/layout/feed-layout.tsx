@@ -12,7 +12,7 @@ type FeedLayoutType = {
 
 const FeedLayout: React.FC<FeedLayoutType> = ({ children, sideBar = "mount", trending = "mount", className }) => {
     const trendingMount = useMediaQuery('(min-width: 1097px)')
-    const sidebarMount = useMediaQuery('(min-width: 851px)')
+    const sidebarMount = useMediaQuery('(min-width: 540px)')
 
 
     return (
