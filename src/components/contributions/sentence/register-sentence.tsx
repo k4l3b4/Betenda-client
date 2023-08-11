@@ -5,6 +5,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useContributionContext } from "@/context/contrib-context";
+import { renderErrors } from "@/lib/utils";
 import { DataType } from "@/types/global";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -33,6 +34,38 @@ const RegisterSentence = () => {
                 title: "Wo hoo",
                 description: "Amazing!, thank you for your contribution.",
             })
+        },
+        onError: (error: AxiosError) => {
+            console.log(error);
+            if (!error?.response) {
+                if (error?.code === "ERR_BAD_REQUEST") {
+                    toast({
+                        variant: "destructive",
+                        title: "Oops",
+                        description: "Malformed syntax or invalid request message framing"
+                    });
+                } else if (error?.code === "ERR_CONNECTION_TIMED_OUT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Oops",
+                        description: "Connection timed out"
+                    });
+                }
+            } else if (error?.response) {
+                toast({
+                    variant: "destructive",
+                    title: "Oops",
+                    description: (
+                        <div dangerouslySetInnerHTML={{ __html: renderErrors(error?.response?.data) }} />
+                    )
+                });
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Oops",
+                    description: "An error occurred"
+                });
+            }
         }
     })
 
