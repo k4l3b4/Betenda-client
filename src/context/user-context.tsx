@@ -5,9 +5,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { loginUser } from '@/api/requests/auth/requests';
 import { LoginType } from '@/types/auth';
 import { getUser } from '@/api/requests/user/requests';
-import ApiError from '@/types/api';
 import { UserContextValue, UserType } from '@/types/global';
 import { AxiosError } from 'axios';
+import { useToast } from '@/components/ui/use-toast';
+import { renderErrors } from '@/lib/utils';
 
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
@@ -21,6 +22,7 @@ export const useUserContext = () => {
 };
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+    const { toast } = useToast()
     const router = useRouter()
     const [callGetUser, setCallGetUser] = useState<boolean>(false)
     const [returnUrl, setReturnUrl] = useState<string>("/")
@@ -34,8 +36,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             localStorage.setItem('refresh', JSON.stringify(refresh));
             window.location.replace(returnUrl)
         },
-        onError: (error: ApiError) => {
-            // handle error
+        onError: (error: AxiosError) => {
+            console.log(error);
+            if (!error?.response) {
+                if (error?.code === "ERR_BAD_REQUEST") {
+                    toast({
+                        variant: "destructive",
+                        title: "Oops",
+                        description: "Malformed syntax or invalid request message framing"
+                    });
+                } else if (error?.code === "ERR_CONNECTION_TIMED_OUT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Oops",
+                        description: "Connection timed out"
+                    });
+                }
+            } else if (error?.response) {
+                toast({
+                    variant: "destructive",
+                    title: "Oops",
+                    description: (
+                        <div dangerouslySetInnerHTML={{ __html: renderErrors(error?.response?.data) }} />
+                    )
+                });
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Oops",
+                    description: "An error occurred"
+                });
+            }
         }
     })
 
