@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useUserContext } from "@/context/user-context"
-import { uploadProgress } from "@/lib/utils"
+import { cn, uploadProgress } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { Mic, Paperclip, SmilePlus } from "lucide-react"
@@ -56,12 +56,13 @@ const FormSchema = z.object({
 type CreatePostCompType = {
   placeholder?: string,
   parent_id?: number,
+  className?: string,
   onSuccess?: (data: any) => void,
   onError?: (error: any) => void,
   key?: string
 }
 
-const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new happened?, anything on your mind?", onSuccess, onError, parent_id = undefined, key }) => {
+const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new happened?, anything on your mind?", className, onSuccess, onError, parent_id = undefined, key }) => {
   const { User } = useUserContext()
   const { mutate, isLoading, isError } = useMutation({
     mutationFn: createPost,
@@ -151,9 +152,9 @@ const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new 
   }
 
   return (
-    <Card className="flex w-full min-w-[350px] max-w-[650px] flex-col gap-y-4 p-4 my-4 bg-foreground" id="create-post">
+    <div className={cn("flex w-full min-w-[350px] max-w-[650px] flex-col gap-y-4 p-4 my-4 rounded-md bg-foreground", className)} id="create-post">
       <Form {...form}>
-        <form className="flex w-full items-start" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="flex flex-col gap-3 w-full items-start" onSubmit={form.handleSubmit(onSubmit)}>
           <Avatar className="mt-1 mr-2 sml:hidden xxs:block">
             <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
             <AvatarFallback>{`${User?.first_name?.substr(0, 1)}${User?.last_name?.substr(0, 1)}`}</AvatarFallback>
@@ -167,7 +168,7 @@ const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new 
                   <FormMessage />
                   <FormControl>
                     <Textarea
-                      className="max-h-44 border-none text-lg placeholder:opacity-50 focus:ring-0 focus-visible:ring-0"
+                      className="max-h-44 !border-0 focus-visible:!ring-0 text-lg placeholder:opacity-50 focus:!ring-0"
                       placeholder={placeholder}
                       {...field}
                     />
@@ -223,7 +224,7 @@ const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new 
           </div>
         </form>
       </Form>
-    </Card>
+    </div>
   );
 }
 
