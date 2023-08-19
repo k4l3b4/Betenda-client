@@ -3,7 +3,7 @@ import { CreatePostType } from "@/types/post"
 import FormData from "form-data"
 
 export const getPosts = async ({ pageParam = 1, sessionId = "" }: { pageParam?: number, sessionId?: string }) => {
-    const response = await axiosInstance.get(`posts/get_posts?page=${pageParam}`, {
+    const response = await axiosInstance.get(`posts/get_posts?page=${pageParam ?? 1}`, {
         headers: {
             Cookie: `sessionid=${sessionId}`,
         },
@@ -75,7 +75,7 @@ export const updatePost = async ({ values, id }: { values: CreatePostType, id: n
 }
 
 
-export const deletePost = async ({ id }: { id: number }) => {
+export const deletePostRequest = async ({ id }: { id: number }) => {
     const response = await axiosInstance.delete(`posts/post?id=${id}`)
     return response.data
 }

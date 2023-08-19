@@ -1,5 +1,5 @@
 import axiosInstance from "@/api/axios-instance"
-import { RegisterType, UpdateProfileType } from "@/types/auth"
+import { UpdateProfileType } from "@/types/auth"
 import FormData from "form-data"
 
 export const getUser = async () => {

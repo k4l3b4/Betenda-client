@@ -19,8 +19,8 @@ const formSchema = z.object({
     word: z.string().nonempty({ message: "Source word required" }),
     target_language: z.string().nonempty({ message: "Target language required" }),
     translation: z.string().nonempty({ message: "Word translation required" }),
-    synonym: z.any().optional(),
-    antonym: z.any().optional(),
+    // synonym: z.any().optional(),
+    // antonym: z.any().optional(),
 })
 
 const RegisterWord = () => {
@@ -79,8 +79,8 @@ const RegisterWord = () => {
             translation: "",
             source_language: "",
             target_language: "",
-            synonym: [],
-            antonym: [],
+            // synonym: [],
+            // antonym: [],
         },
     })
 
@@ -174,7 +174,7 @@ const RegisterWord = () => {
                             )}
                         />
                     </div>
-                    <div className="flex flex-col justify-center xsm:flex-row xsm:items-center gap-2">
+                    {/* <div className="flex flex-col justify-center xsm:flex-row xsm:items-center gap-2">
                         <FormField
                             control={form.control}
                             name="synonym"
@@ -208,7 +208,7 @@ const RegisterWord = () => {
                                 </FormItem>
                             )}
                         />
-                    </div>
+                    </div> */}
                     <Button type="submit">{registering ? "Submitting.." : "Submit"}</Button>
                 </form>
             </Form>
