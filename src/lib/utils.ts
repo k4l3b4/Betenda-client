@@ -1,4 +1,4 @@
-import { useToast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 import ApiError from "@/types/api";
 import { AxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx"
@@ -21,7 +21,7 @@ export function guessMedia(link: string): string | boolean {
   const extension = link.match(/\.([^.]+)$/)?.[1]?.toLowerCase();
 
   if (extension) {
-    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+    if (['jpg', 'jpeg', 'webp', 'png', 'gif'].includes(extension)) {
       return "img";
     }
 
@@ -42,6 +42,10 @@ export function guessMedia(link: string): string | boolean {
 export const formatNumberWithSuffix = (number: number) => {
   const suffixes = ["", "k", "M", "B", "T", "Q"];
 
+  if (number === undefined || number === null) {
+    return 0
+  }
+
   if (number < 1000) {
     return number.toString();
   }
@@ -59,17 +63,23 @@ export const renderErrors = (error: ApiError): string | { [field: string]: strin
     return error?.error;
   }
 
-  let formattedErrors = "";
+  let formattedErrors = '';
 
   for (const field in error.error) {
     if (error.error.hasOwnProperty(field)) {
-      const fieldErrors: string[] = error.error[field];
+      const fieldErrors = error.error[field];
 
-      fieldErrors.forEach((message) => {
+      if (Array.isArray(fieldErrors)) {
+        fieldErrors.forEach((message) => {
+          const formattedField = field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+          const errorMessage = `<p>${formattedField}: ${message}\n</p>`;
+          formattedErrors += errorMessage;
+        });
+      } else if (typeof fieldErrors === 'string') {
         const formattedField = field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-        const errorMessage = `<p>${formattedField}: ${message}\n</p>`;
+        const errorMessage = `<p>${formattedField}: ${fieldErrors}\n</p>`;
         formattedErrors += errorMessage;
-      });
+      }
     }
   }
 
@@ -131,3 +141,40 @@ export const getCookieValue = (req: IncomingMessage, cookieName: string): string
   const cookieValue = cookies[cookieName] || '';
   return cookieValue;
 };
+
+
+
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: ReturnType<typeof setTimeout> | null;
+
+  return (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+
+const updateQueryData = (queryClient: any, queryKey: any, newData: any, isArray = false) => {
+  queryClient.setQueryData(queryKey, (oldData: any) => {
+    if (!isArray) {
+      return newData;
+    }
+    const updatedArray = oldData.data.map((item: any) => {
+      if (item.id === newData.data.id) {
+        return newData?.data;
+      }
+      return item;
+    });
+    return { ...oldData, data: updatedArray };
+  });
+};
+
+export { updateQueryData };
