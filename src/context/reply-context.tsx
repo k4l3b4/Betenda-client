@@ -12,11 +12,12 @@ interface ReplyContextValue {
     handleReplyToComment: (comment: CommentType) => void,
     handleSaveComment: () => void;
     handleTopParent: (parent: number) => void,
-    onSuccess?: (data: any) => void,
     commenting: boolean,
     replying: boolean,
     commentError: boolean,
     replyError: boolean,
+    resource_type: string,
+    resource_id: number,
     inputError: string,
     setInputError: React.Dispatch<React.SetStateAction<string>>,
 }
@@ -29,7 +30,6 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
     const [commentInput, setCommentInput] = useState<string>('');
     const [topParentId, setTopParentId] = useState<number | null>(null);
     const [inputError, setInputError] = useState<string>("")
-    console.log(topParentId)
     const queryClient = useQueryClient()
 
     const { mutate: comment, isLoading: commenting, isError: commentError } = useMutation({
@@ -38,18 +38,16 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
             setUsername(null);
             setCommentId(null);
             setCommentInput('');
-            const currentData = queryClient.getQueryData<InfiniteCommentsType>(['comments']);
-
+            const currentData = queryClient.getQueryData<InfiniteCommentsType>(['comments', resource_id]);
             if (currentData) {
                 const updatedResults = [
                     data?.data,
                     ...(currentData.pages[0]?.results || []),
                 ];
-                console.log("updated data:", updatedResults)
-                queryClient.setQueryData<InfiniteCommentsType>(['comments'], {
+                queryClient.setQueryData<InfiniteCommentsType>(['comments', resource_id], {
                     pages: [
                         {
-                            total_items: currentData.pages[0]?.total_items,
+                            total_items: currentData.pages[0]?.total_items + 1,
                             page: currentData.pages[0]?.page,
                             page_size: currentData.pages[0]?.page_size,
                             results: updatedResults,
@@ -59,11 +57,10 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
                     pageParams: currentData.pageParams,
                 });
             }
-            // handle optimistic update
         }
     })
 
-    const { mutate: reply, isLoading: replying, isError: replyError } = useMutation({
+    const { mutate: reply, isLoading: replying, isError: replyError} = useMutation({
         mutationFn: createReply,
         onSuccess: (data) => {
             setUsername(null);
@@ -71,13 +68,11 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
             setCommentInput('');
             const currentData = queryClient.getQueryData<InfiniteCommentsType>(['replies', topParentId]);
             if (currentData) {
-                console.log("current data:", currentData)
                 // Add the new notification to the first page
                 const updatedResults = [
                     data?.data, // getting this from the onSuccess handler in the useMutation hook
                     ...(currentData.pages[0]?.results || []),
                 ];
-                console.log("updated data:", updatedResults)
                 // Update the query data with the new notification added to the first page
                 queryClient.setQueryData<InfiniteCommentsType>(['replies', topParentId], {
                     pages: [
@@ -92,6 +87,32 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
                     pageParams: currentData.pageParams,
                 });
             }
+            queryClient.setQueryData<InfiniteCommentsType | undefined>(['comments', resource_id], (oldData) => {
+                if (!oldData) return undefined;
+
+                const updatedPages = oldData?.pages?.map(page => {
+                    const updatedResults = page?.results?.map(comment => {
+                        if (comment?.id === topParentId) {
+                            return {
+                                ...comment,
+                                reply_count: comment.reply_count + 1,
+                            };
+                        }
+                        return comment;
+                    });
+                    return {
+                        ...page,
+                        results: updatedResults,
+                    };
+                });
+
+                return {
+                    pages: updatedPages,
+                    pageParams: oldData.pageParams,
+                };
+            });
+
+
         }
     })
 
@@ -151,10 +172,8 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
                 } else {
                     setInputError("We don't save empty comments.")
                 }
-                console.log(`Replying to comment ${commentId} with text: ${commentInput} on parent ${topParentId}`);
             } else {
                 comment({ resource_type: resource_type, resource_id: resource_id, values: { comment: commentText } })
-                console.log(`Creating new comment with text: ${commentInput}`);
             }
         }
     };
@@ -169,6 +188,8 @@ const ReplyProvider = ({ children, resource_type, resource_id }: { children: Rea
         commentId,
         commentInput,
         inputError,
+        resource_type: resource_type,
+        resource_id: resource_id,
         setInputError,
         handleInputChange,
         handleReplyToComment,
