@@ -68,6 +68,8 @@ const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new 
     mutationFn: createPost,
     onSuccess: (data) => {
       form.reset()
+      setSelectedFile(null);
+      setPreviewUrl('');
       if (onSuccess) {
         onSuccess(data); // Call the onSuccess prop if it's provided
       }
@@ -152,10 +154,10 @@ const CreatePost: React.FC<CreatePostCompType> = ({ placeholder = "Anything new 
   }
 
   return (
-    <div className={cn("flex w-full min-w-[350px] max-w-[650px] flex-col gap-y-4 p-4 my-4 rounded-md bg-foreground", className)} id="create-post">
+    <div className={cn("flex w-full min-w-[350px] max-w-[650px] flex-col gap-y-4 my-4 rounded-md bg-foreground", className)} id="create-post">
       <Form {...form}>
         <form className="flex flex-col gap-3 w-full items-start" onSubmit={form.handleSubmit(onSubmit)}>
-          <Avatar className="mt-1 mr-2 sml:hidden xxs:block">
+          <Avatar className="mt-1 mr-2 h-12 w-12">
             <AvatarImage src={User?.profile_avatar} alt={`@${User?.user_name}`} />
             <AvatarFallback>{`${User?.first_name?.substr(0, 1)}${User?.last_name?.substr(0, 1)}`}</AvatarFallback>
           </Avatar>

@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import CircularProgress from "@mui/material/CircularProgress";
-import { FrownIcon, GhostIcon } from "lucide-react";
-import ArticleData from "./article-data";
 import { InfiniteArticlesType } from "@/types/article";
-import DataLoading from "../app-ui-states/data-loading";
-import DataError from "../app-ui-states/data-error";
-import NoData from "../app-ui-states/no-data";
+import ArticleData from "@/components/article/article-data";
+import dynamic from "next/dynamic";
+const DataError = dynamic(() => import('@/components/app-ui-states/data-error'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+const DataLoading = dynamic(() => import('@/components/app-ui-states/data-loading'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+const NoData = dynamic(() => import('@/components/app-ui-states/no-data'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
 
 type ArticleCompType = {
     loading: boolean,
@@ -14,7 +18,7 @@ type ArticleCompType = {
     refetch: () => void,
     refetching: boolean,
     classNames?: {
-        post?: string,
+        article?: string,
         loading?: string,
         error?: string,
         noData?: string,
@@ -41,7 +45,7 @@ const ArticlesComp: React.FC<ArticleCompType> = ({ loading, error, refetch, refe
                             article?.map(page =>
                                 page?.results?.map((article) => {
                                     return (
-                                        <ArticleData className={cn('hover-anim w-[650px]', classNames?.post)} article={article} key={article?.id} />
+                                        <ArticleData className={cn('w-full max-w-[650px] my-2', classNames?.article)} article={article} key={article?.id} />
                                     )
                                 }))
             }

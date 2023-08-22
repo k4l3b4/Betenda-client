@@ -1,23 +1,33 @@
 "use client"
 import { createArticle } from '@/api/requests/article/requests'
 import { getAuthors } from '@/api/requests/user/requests'
-import FilePreview from '@/components/file-preview/file-preview'
 import Meta from '@/components/meta/meta'
-import Editor from '@/components/text-editor/text-editor'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { ToastAction } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/use-toast'
 import { useUserContext } from '@/context/user-context'
 import { debounce } from '@/lib/utils'
 import { Switch } from '@headlessui/react'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from "react-hook-form"
 import { ReactTags } from 'react-tag-autocomplete'
 import * as z from "zod"
+
+const FilePreview = dynamic(() => import('@/components/file-preview/file-preview'), {
+  loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+
+const Editor = dynamic(() => import('@/components/text-editor/text-editor'), {
+  loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
 
 type Authors = {
   value: number;
@@ -66,10 +76,11 @@ export const FormSchema = z.object({
 })
 
 const CreateArticle = () => {
+  const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(true)
   const [data, setData] = useState<AuthorsType[]>([])
   const [suggestion, setSuggestion] = useState<Authors[]>([])
-
+  const router = useRouter()
   const onInput = useCallback(
     debounce(async (value) => {
       try {
@@ -99,12 +110,20 @@ const CreateArticle = () => {
   const { User } = useUserContext()
   const { mutate, isLoading, isError } = useMutation({
     mutationFn: createArticle,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       form.reset()
+      setSelectedFile(null);
+      setPreviewUrl('');
+      toast({
+        title: "THe article has been successfully published",
+        description: "You can go to check it out now!",
+        action: (
+          <ToastAction onClick={() => router.push(`/article/${data?.data?.slug}`)} altText="Goto the updated article">Go to article</ToastAction>
+        ),
+      })
     },
     onError: (err) => {
       console.error(err);
-
     }
   })
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -186,7 +205,7 @@ const CreateArticle = () => {
   }
 
 
-  React.useEffect(() => {
+  useEffect(() => {
     const tagValues = authors.map((author) => author.value).join(','); // Convert to a comma-separated string
     form.setValue('authors', tagValues);
   }, [authors, form]);
@@ -209,7 +228,13 @@ const CreateArticle = () => {
       <Meta title="Write an article" />
       <Form {...form}>
         <form className="p-2 my-3 w-full rounded-md border max-w-[900px] bg-foreground" onSubmit={form.handleSubmit(onSubmit)}>
-          <h2>Lets publish an article!</h2>
+          <div className="flex flex-col w-full gap-2">
+            <h2 className="text-lg sm:text-5xl">Lets publish an article!</h2>
+            <div className="flex flex-row gap-x-2 my-4">
+              <Button className="w-fit" onClick={() => router.back()} variant="default">Go back</Button>
+              <Button className="w-fit" onClick={() => router.replace('/')} variant="secondary">Go home</Button>
+            </div>
+          </div>
           <div className="mt-3">
             <p className="text-sm"><strong>NOTE:</strong> images will be capped at a max height of 300px when published</p>
             <FormField
@@ -243,7 +268,7 @@ const CreateArticle = () => {
                 <h3 className="font-bold text-3xl">Upload an article cover photo</h3>
               </button>}
           </div>
-          <div className="w-full flex flex-col mt-4 gap-2 items-start xxs:flex-row">
+          <div className="w-full flex flex-col mt-4 gap-2 items-start xsm:flex-row">
             <FormField
               control={form.control}
               name="title"
@@ -278,7 +303,7 @@ const CreateArticle = () => {
               <FormItem className="w-full">
                 <FormLabel>Body</FormLabel>
                 <FormControl>
-                  <Editor form={form} />
+                  <Editor classNames={{ container: "article", editor: "body" }} form={form} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -296,10 +321,11 @@ const CreateArticle = () => {
                     noOptionsText={loading && suggestion?.length === 0 ? "Loading..." : "No authors found"}
                     selected={authors}
                     onInput={onInput}
-                    suggestions={suggestion} // Add suggestions if needed
-                    onAdd={onAuthorAdd} // i know what to expect so i'm just going to ignore the error
+                    suggestions={suggestion}
+                    onAdd={(value) => onAuthorAdd(value as Authors)}
                     onDelete={onAuthorDelete}
-                    placeholder="Add contributors"
+                    placeholderText="Add contributors"
+                    labelText="Add contributors"
                   />
                 </FormControl>
                 <FormMessage />

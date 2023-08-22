@@ -1,16 +1,23 @@
 import { getPostBySlug, getPostReplies } from "@/api/requests/post/requests";
 import FeedLayout from "@/components/layout/feed-layout";
 import Meta from "@/components/meta/meta";
-import CreatePost from "@/components/post/create-post";
 import PostData from "@/components/post/post-data";
-import PostsComp from "@/components/post/posts-comp";
 import { getCookieValue } from "@/lib/utils";
 import { InfinitePostsType, PostType } from "@/types/post";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QueryClient, dehydrate, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
+
+const CreatePost = dynamic(() => import('@/components/post/create-post'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+
+const PostsComp = dynamic(() => import('@/components/post/posts-comp'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
 
 const Post = () => {
     const queryClient = useQueryClient()
@@ -54,15 +61,15 @@ const Post = () => {
 
     return (
         <FeedLayout>
-            <Meta title={`${postData?.content?.substring(0, 15) ?? `${`${postData?.user?.first_name}'s post`}`}` ?? "Loading..."} />
-            <section className={`${loadingPosts ? "space-y-4" : ""} rounded-md container flex flex-col items-center mt-2 p-0`} id="feed">
+            <Meta title={`${postData?.user?.first_name} on betenda: "${postData?.content?.substring(0, 15)}"`} />
+            <section className={`${loadingPosts ? "space-y-4" : ""} w-full rounded-md flex flex-col items-center mt-2 p-0`} id="feed">
                 {loadingPosts ?
                     <div className="flex flex-col justify-center items-center mt-5">
                         <CircularProgress color="inherit" thickness={4} size="2.3rem" />
                     </div>
                     :
                     <>
-                        <PostData classNames={{ content: "ml-0 px-0 py-2" }} post={postData} />
+                        <PostData classNames={{ container: "hover:cursor-default", content: "ml-0 px-0 py-2", contentTxt: "text-lg" }} post={postData} />
                         <CreatePost className="bg-transparent" onSuccess={(data) => onMutationSuccess(data)} parent_id={postData?.id} placeholder={`Reply to ${postData?.user?.first_name}'s post`} />
                     </>
                 }
@@ -73,7 +80,7 @@ const Post = () => {
                     </div>
                     :
                     <>
-                        <PostsComp data={repliesData} error={repliesError} loading={loadingReplies} refetch={refetch} refetching={isRefetching} noData={{ message: "Looks like no on has replied yet" }} />
+                        <PostsComp parent_slug={postData?.slug} classNames={{ post: { contentTxt: "text-lg" } }} data={repliesData} error={repliesError} loading={loadingReplies} refetch={refetch} refetching={isRefetching} noData={{ message: "Looks like no on has replied yet" }} />
                     </>
                 }
             </section>

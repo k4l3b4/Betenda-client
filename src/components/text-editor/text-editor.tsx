@@ -10,6 +10,8 @@ import TextAlign from '@tiptap/extension-text-align'
 import { UseFormReturn } from 'react-hook-form'
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, CopyX, Heading2, Heading3, Heading4, Heading5, Heading6, ImageIcon, Italic, Link2Icon, Link2OffIcon, List, ListOrdered, ListRestart, Pilcrow, Quote, Redo2, UnderlineIcon, Undo2, WrapText } from 'lucide-react'
 import { FormSchema } from '@/pages/dashboard/article/create'
+import { cn } from '@/lib/utils'
+import { ArticleType } from '@/types/article'
 
 const iconsStyles = "w-5 h-5"
 const Active = 'is-active bg-black dark:bg-white text-white dark:text-black'
@@ -266,7 +268,7 @@ const MenuBar = ({ editor, className }: { editor: any, className: string }) => {
   )
 }
 
-const Editor = ({ form }: { form: UseFormReturn<z.infer<typeof FormSchema>> }) => {
+const Editor = ({ form, classNames, article }: { form: UseFormReturn<z.infer<typeof FormSchema>>, classNames?: { container?: string, menuBar?: string, editor?: string }, article?: ArticleType }) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -288,23 +290,26 @@ const Editor = ({ form }: { form: UseFormReturn<z.infer<typeof FormSchema>> }) =
 
   useEffect(() => {
     // This effect runs only in the browser environment
+    const contentFromForm = article?.body
     const contentFromLocalStorage = localStorage.getItem('content');
     if (contentFromLocalStorage) {
       editor?.commands?.setContent(JSON.parse(contentFromLocalStorage));
+    } else if (contentFromForm) {
+      editor?.commands?.setContent(contentFromForm)
     } else {
       editor?.commands?.setContent('<p>Start writing your article.</p>');
     }
-  }, [editor]);
+  }, [editor, article]);
 
   return (
-    <div className='w-full relative rounded outline-none'>
+    <div className={cn('w-full relative rounded outline-none', classNames?.container)}>
       <MenuBar
         editor={editor}
-        className='flex flex-row gap-1 sticky top-[60px] shadow z-50 flex-wrap items-start py-1 px-2 bg-background h-auto rounded-t w-full'
+        className={cn('flex flex-row gap-1 sticky top-[0px] shadow-lg z-50 flex-wrap items-start py-1 px-2 bg-background h-auto rounded-t w-full', classNames?.menuBar)}
       />
       <EditorContent
         editor={editor}
-        className='relative rounded bg-background min-h-[400px] border-none article p-1'
+        className={cn('relative rounded bg-background min-h-[400px] border-none article p-1', classNames?.editor)}
       />
     </div>
   )

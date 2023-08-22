@@ -17,7 +17,7 @@ const DataError = ({ className, refetch, refetching, icon = true, message }: { c
 
                 <h3>{message ? message : 'An unexpected Error occurred'}</h3>
             </div>
-            <Button onClick={refetch}>{refetching ? "Retrying" : "Retry"}</Button>
+            <Button disabled={refetching} onClick={refetch}>{refetching ? "Retrying" : "Retry"}</Button>
         </div>
     );
 }

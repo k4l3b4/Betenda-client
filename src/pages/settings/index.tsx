@@ -258,14 +258,13 @@ const Settings = () => {
                                     <FilePreview imageClass="h-full max-h-[272px]" videoClass="h-full max-h-[272px]" file={selectedCover} previewUrl={previewCoverUrl} onDelete={() => handleDelete("COVER")} onSwap={() => handleSwap("COVER")} />
                                 </>
                             ) :
-                                <button type="button" onClick={() => handleChooseFile("COVER")} className="relative rounded-md z-30 w-full h-full hover:cursor-pointer border-[3px] border-dashed border-indigo-600">
+                                <button type="button" onClick={() => handleChooseFile("COVER")} className="relative rounded-md z-30 w-full h-full hover:cursor-pointer border-[3px] border-dashed border-black dark:border-white">
                                     {User?.profile_cover && <Image className="w-full object-cover h-full rounded-md" src={User?.profile_cover} width="700" height="400" alt="" />}
                                     <span className="absolute inset-0 flex justify-center items-center bg-gray-300/20 rounded-md">
                                         <h2 className="p-4 bg-gray-300/40 rounded-md">Upload a cover photo</h2>
                                     </span>
                                 </button>
                             }
-
                         </div>
                         <div className="relative">
                             <div className="absolute -top-24 left-4 h-32 w-32 z-50 rounded-md ring-4 bg-background ring-foreground">

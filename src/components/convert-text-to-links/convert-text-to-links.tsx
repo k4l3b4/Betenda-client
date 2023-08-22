@@ -2,54 +2,59 @@ import Link from 'next/link';
 import React from 'react';
 
 function convertTextToLinks(text: string): React.ReactNode[] {
-    const hashtagRegex = /#(\w+)(?!\.\w+)/g;
-    const mentionRegex = /@([\w\u1200-\u137F\u1369-\u137C.]+)(?!\.\w+)/g;
-    const linkRegex = /(?:(?:https?|ftp):\/\/)?(?!localhost\b)(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|(?:\d{1,3}\.){3}\d{1,3})(?::\d+)?(?:\/?\S*)?/gi;
-
     const parts: React.ReactNode[] = [];
+    const wordRegex = /\S+/g;
     let lastIndex = 0;
 
-    text?.replace(hashtagRegex, (match, hashtag, index) => {
-        const beforeText = text?.slice(lastIndex, index);
-        const link = (
-            <Link onClick={(event) => event.stopPropagation()} href={`/hashtag/${hashtag}`} key={index}>
-                {`#${hashtag}`}
+    const processLink = (link: string, isHashtag: boolean, isMention: boolean) => {
+        const linkElement = isHashtag ? (
+            <Link onClick={(event) => event.stopPropagation()} href={`/hashtag/${link.substring(1)}`} key={lastIndex}>
+                {`${link}`}
             </Link>
-        );
-        parts?.push(beforeText, link);
-        lastIndex = index + match?.length;
-        return match;
-    });
-
-    text?.replace(mentionRegex, (match, mention, index) => {
-        const beforeText = text?.slice(lastIndex, index);
-        const link = (
-            <Link onClick={(event) => event.stopPropagation()} href={`/${mention}`} key={index}>
-                {`@${mention}`}
+        ) : isMention ? (
+            <Link onClick={(event) => event.stopPropagation()} href={`${link.substring(1)}`} key={lastIndex}>
+                {`${link}`}
             </Link>
-        );
-        parts?.push(beforeText, link);
-        lastIndex = index + match?.length;
-        return match;
-    });
-
-    text?.replace(linkRegex, (match, index) => {
-        const beforeText = text?.slice(lastIndex, index);
-        const url = match?.startsWith('http') ? match : `http://${match}`;
-        const link = (
-            <a onClick={(event) => event.stopPropagation()} href={url} target="_blank" rel="noopener noreferrer" key={index}>
-                {match}
+        ) : (
+            <a onClick={(event) => event.stopPropagation()} href={`/redirect?url=${getProperUrl(link)}`} target="_blank" rel="noopener noreferrer" key={lastIndex}>
+                {link}
             </a>
         );
-        parts?.push(beforeText, link);
-        lastIndex = index + match?.length;
-        return match;
-    });
+        parts.push(linkElement);
+    };
 
-    const remainingText = text?.slice(lastIndex);
-    parts?.push(remainingText);
+    const getProperUrl = (url: string): string => {
+        // Add "https://" if the URL doesn't start with "http://" or "https://"
+        if (!url.match(/^(https?:\/\/)/i)) {
+            return `https://${url}`;
+        }
+        return url;
+    };
+
+    let match;
+    while ((match = wordRegex.exec(text)) !== null) {
+        const beforeText = text?.slice(lastIndex, match.index);
+        const word = match[0];
+        const isHashtag = word?.match(/^#(\w+)(?!\.\w+)/) ? true : false;
+        const isMention = word?.match(/^@([\w\u1200-\u137F\u1369-\u137C.]+)(?!\.\w+)/) ? true : false;
+        const isLink = word?.match(
+            /(?:(?:https?|ftp):\/\/)?(?!localhost\b)(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|(?:\d{1,3}\.){3}\d{1,3})(?::\d+)?(?:\/?\S*)?/i
+        );
+
+        if (beforeText) {
+            parts.push(beforeText);
+        }
+
+        if (isHashtag || isMention || isLink) {
+            processLink(word, isHashtag, isMention);
+        } else {
+            parts.push(word);
+        }
+
+        lastIndex = match.index + word.length;
+    }
 
     return parts;
 }
 
-export default convertTextToLinks
+export default convertTextToLinks;

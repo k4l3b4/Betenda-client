@@ -1,12 +1,13 @@
-'use client'
-import Comment from "./comment";
-import { InfiniteCommentsType } from "@/types/comment";
-import { AnimatePresence, motion } from "framer-motion";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { getComments } from "@/api/requests/comment/requests";
-import { CircularProgress } from "@mui/material";
-import { useReplyContext } from "@/context/reply-context";
-import { useRef } from "react";
+import DataError from "@/components/app-ui-states/data-error";
+import DataLoading from "@/components/app-ui-states/data-loading";
+import NoData from "@/components/app-ui-states/no-data";
+import LoadMore from "@/components/load-more/load-more";
+import LoadMoreHider from "@/components/ui-utils/lead-more-hider";
+import { InfiniteCommentsType } from "@/types/comment";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import Comment from "./comment";
 
 type RepliesCompType = {
     parent_id: number,
@@ -20,9 +21,7 @@ const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent
         data,
         isError,
         isLoading,
-        isFetchingNextPage,
-        refetch,
-        isRefetching,
+        isFetchingNextPage, refetch, isRefetching,
         fetchNextPage,
         hasNextPage
     } = useInfiniteQuery(
@@ -38,21 +37,17 @@ const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent
         <>
             {
                 isLoading ?
-                    <div className="flex flex-col justify-center items-center mt-5">
-                        <CircularProgress color="inherit" thickness={4} size="2.3rem" />
-                    </div>
+                    <DataLoading />
                     :
                     isError ? (
-                        <h3>An unexpected Error occurred</h3>
+                        <DataError refetch={refetch} refetching={isRefetching} />
                     )
                         :
                         comments?.pages?.[0]?.results?.length === 0 ? (
-                            <div className="flex flex-col justify-center space-y-4 items-center mt-3 opacity-60">
-                                <h4>Be the first to Reply!</h4>
-                            </div>
+                            <NoData message="Be the first to Reply!" />
                         )
                             :
-                            <section id="comments" className="w-full space-y-4">
+                            <section id={`${resource_id}-replies`} className="w-full space-y-4">
                                 <AnimatePresence mode={"popLayout"}>
                                     {comments?.pages?.map(page =>
                                         page?.results?.map((comment) => {
@@ -70,6 +65,9 @@ const Replies: React.FC<RepliesCompType> = ({ resource_type, resource_id, parent
                                             )
                                         }))}
                                 </AnimatePresence>
+                                <LoadMoreHider page={comments?.pages?.[1] ? true : false} loading={isFetchingNextPage}>
+                                    <LoadMore fetchNextPage={fetchNextPage} hasNextPage={hasNextPage as boolean} isFetchingNextPage={isFetchingNextPage} />
+                                </LoadMoreHider>
                             </section>
             }
         </>

@@ -7,7 +7,7 @@ import LoadMore from "../load-more/load-more";
 const UserPosts = ({ username }: { username: string }) => {
     const { data, isError, isLoading, isFetchingNextPage, refetch, isRefetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
         {
-            queryKey: ['user_posts'],
+            queryKey: ['user_posts', username],
             queryFn: ({ pageParam }) => getUserPosts({ pageParam: pageParam, username: username }),
             getNextPageParam: (lastPage) => lastPage?.page < lastPage?.pages_count ? lastPage?.page + 1 : undefined,
             enabled: username ? true : false

@@ -14,6 +14,7 @@ export interface PostType {
     media_type: string | null,
     user: UserType,
     reactions: ReactionsType,
+    bookmarked: boolean,
     replies_count: null,
     thread: PostType[],
     created_at: string,

@@ -1,19 +1,30 @@
-import DataError from "@/components/app-ui-states/data-error";
-import DataLoading from "@/components/app-ui-states/data-loading";
-import NoData from "@/components/app-ui-states/no-data";
 import PostData from "@/components/post/post-data";
+import { cn } from "@/lib/utils";
 import { InfinitePostsType } from "@/types/post";
-
+import dynamic from "next/dynamic";
+const DataError = dynamic(() => import('@/components/app-ui-states/data-error'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+const DataLoading = dynamic(() => import('@/components/app-ui-states/data-loading'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
+const NoData = dynamic(() => import('@/components/app-ui-states/no-data'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center"><p className="font-medium opacity-70">Loading...</p></div>,
+})
 type PostCompType = {
     loading: boolean,
     error: boolean,
     refetch: () => void,
     refetching: boolean,
+    threadable?: boolean
+    parent_slug?: string,
     classNames?: {
         post?: {
             container?: string;
             profile?: string;
             content?: string;
+            contentTxt?: string;
+            contentMedia?: string;
             actions?: string;
         },
         loading?: string,
@@ -27,13 +38,13 @@ type PostCompType = {
     data: InfinitePostsType
 }
 
-const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching, data, classNames, noData }) => {
+const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching, data, classNames, noData, threadable, parent_slug }) => {
     const posts = data?.pages
     return (
         <>
             {
                 loading ?
-                    <DataLoading className={classNames?.loading} />
+                    <DataLoading className={cn(classNames?.loading, "mt-4")} />
                     :
                     error ? (
                         <DataError className={classNames?.error} refetch={refetch} refetching={refetching} />
@@ -50,9 +61,13 @@ const PostsComp: React.FC<PostCompType> = ({ loading, error, refetch, refetching
                                             classNames={{
                                                 container: classNames?.post?.container,
                                                 content: classNames?.post?.content,
+                                                contentTxt: classNames?.post?.contentTxt,
+                                                contentMedia: classNames?.post?.contentMedia,
                                                 profile: classNames?.post?.profile,
                                                 actions: classNames?.post?.actions,
                                             }}
+                                            threadable={threadable}
+                                            parent_slug={parent_slug}
                                             post={post}
                                             key={post?.id} />
                                     )

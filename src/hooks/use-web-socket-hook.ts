@@ -38,6 +38,7 @@ const useWebSocket = <T, E>(endpoint: string, options?: WebSocketOptions<E>): We
         socket.addEventListener('message', (event) => {
             const receivedData: T | any = JSON.parse(event.data);
             setData(receivedData);
+            console.log(receivedData)
             if (onMessage) {
                 onMessage(event as E);
             }

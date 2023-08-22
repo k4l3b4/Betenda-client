@@ -16,13 +16,11 @@ const FeedLayout: React.FC<FeedLayoutType> = ({ children, sideBar = "mount", tre
 
 
     return (
-        <div className={cn("relative flex w-full flex-row justify-between px-2 gap-x-1 min-h-screen", className)}>
+        <div className={cn("relative flex w-full flex-row justify-between px-1 gap-x-1 min-h-screen", className)}>
             {(sideBar === "mount" && sidebarMount) &&
                 <Sidebar />
             }
-
             {children}
-
             {(trending === "mount" && trendingMount) &&
                 <Trending />
             }

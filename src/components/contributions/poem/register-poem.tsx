@@ -15,9 +15,28 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+const MAX_FILE_SIZE = 30000000;
+const ACCEPTED_AUDIO_TYPES = [
+    "audio/mp3", "audio/wav", "audio/aac", "audio/ogg", "audio/flac", "audio/webm", "audio/x-m4a", "audio/mp4",
+];
+
+
 const formSchema = z.object({
     poem: z.string().nonempty({ message: "The poem is required" }),
-    recording: z.any().optional(),
+    recording: z.any()
+        .optional()
+        .refine((file) => {
+            if (file !== undefined && file !== null && file !== "") {
+                return file.size <= MAX_FILE_SIZE;
+            }
+            return true;
+        }, "The max file size at the moment is 50MB")
+        .refine((file) => {
+            if (file !== undefined && file !== null && file !== "") {
+                return ACCEPTED_AUDIO_TYPES.includes(file.type);
+            }
+            return true;
+        }, "File type is not supported."),
     language: z.string().nonempty({ message: "The language is required" }),
 })
 
@@ -85,6 +104,9 @@ const RegisterPoem = () => {
         form.setValue('language', `${value?.value}`)
     }
 
+
+    console.log(ACCEPTED_AUDIO_TYPES?.toString())
+
     return (
         <div className="w-full">
             <Form {...form}>
@@ -101,7 +123,7 @@ const RegisterPoem = () => {
                                 </FormControl>
                                 <FormMessage />
                                 <FormDescription>
-                                    The language the poem is written in
+                                    The poem
                                 </FormDescription>
                             </FormItem>
                         )}
@@ -114,7 +136,7 @@ const RegisterPoem = () => {
                             <FormItem className="w-full">
                                 <FormLabel>Recording</FormLabel>
                                 <FormControl>
-                                    <Input type="file" accept="audio/*" {...field} />
+                                    <Input type="file" accept={ACCEPTED_AUDIO_TYPES?.toString()} {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 <FormDescription>
@@ -135,7 +157,7 @@ const RegisterPoem = () => {
                                 </FormControl>
                                 <FormMessage />
                                 <FormDescription>
-                                    The target language
+                                    The language the poem is written in
                                 </FormDescription>
                             </FormItem>
                         )}

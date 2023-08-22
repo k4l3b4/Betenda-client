@@ -13,14 +13,6 @@ import { renderErrors } from '@/lib/utils';
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
-export const useUserContext = () => {
-    const context = useContext(UserContext);
-    if (!context) {
-        throw new Error('useUserContext must be used within a UserProvider, please wrap your top most level component that need the UserContext with <UserProvider>');
-    }
-    return context;
-};
-
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const { toast } = useToast()
     const router = useRouter()
@@ -75,19 +67,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setReturnUrl(url)
     }
 
-
-    useEffect(() => {
-        if (token) {
-            setCallGetUser(true)
-        }
-    }, [setCallGetUser, token])
-
-
     const LogoutUser = () => {
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
         window.location.replace('/auth/login')
     }
+
+    useEffect(() => {
+        if (token) {
+            setCallGetUser(true)
+        } else {
+            LogoutUser()
+        }
+    }, [setCallGetUser, token])
 
     const { data: UserData, refetch: refetchUser, isLoading: LoadingUser, isError: userError, isFetching } = useQuery({
         queryKey: ['get_user'], queryFn: getUser,
@@ -130,4 +122,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             {children}
         </UserContext.Provider>
     );
+};
+
+export const useUserContext = () => {
+    const context = useContext(UserContext);
+    if (!context) {
+        throw new Error('useUserContext must be used within a UserProvider, please wrap your top most level component that need the UserContext with <UserProvider>');
+    }
+    return context;
 };

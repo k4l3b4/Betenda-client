@@ -1,6 +1,5 @@
-import { Variants, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { SmilePlusIcon } from 'lucide-react'
-import { useState } from 'react'
 import REACTION_CHOICES from './reactiontypes'
 import { buttonVariants } from '../ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
@@ -19,7 +18,7 @@ const ReactComponent = ({ onIconSelect }: { onIconSelect: (event: React.MouseEve
             <PopoverTrigger asChild>
                 <motion.button
                     whileHover={{ scale: 1.1 }}
-                    className='z-[999]'
+                    className='z-50'
                 >
                     <SmilePlusIcon />
                 </motion.button>
