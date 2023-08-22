@@ -34,12 +34,17 @@ export const updatePoem = async ({ values, id }: { values: CreatePoemType, id: n
 }
 
 export const getPoems = async ({ pageParam = 1 }: { pageParam?: number }) => {
-    const response = await axiosInstance.get(`poems?page=${pageParam}`)
+    const response = await axiosInstance.get(`contributions/poems?page=${pageParam}`)
     return response?.data
 }
 
 
 export const getPoemBySlug = async ({ slug }: { slug: string }) => {
-    const response = await axiosInstance.get(`poems/${slug}`)
+    const response = await axiosInstance.get(`contributions/poems/${slug}`)
+    return response?.data
+}
+
+export const deletePoemRequest = async ({ id }: { id: number }) => {
+    const response = await axiosInstance.get(`contributions/poem?id=${id}`)
     return response?.data
 }
