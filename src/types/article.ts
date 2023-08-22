@@ -10,6 +10,16 @@ export interface CreateArticleType {
     featured: boolean,
 }
 
+export interface UpdateArticleType {
+    title?: string,
+    desc?: string,
+    body?: string,
+    image?: File,
+    authors?: string,
+    status?: string,
+    featured?: boolean,
+}
+
 export interface ArticleType {
     id: number,
     title: string,
@@ -20,7 +30,8 @@ export interface ArticleType {
     authors: UserType[],
     status: string,
     featured: boolean,
-    comments_count: string,
+    bookmarked: boolean,
+    comments_count: number,
     published_date: string,
     modified_date: string,
     reactions: ReactionsType,
