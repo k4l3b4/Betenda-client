@@ -4,7 +4,8 @@ import RouteLoader from '@/components/route-loader/route-loader'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
-import { UserProvider } from '@/context/user-context'
+import { NotificationProvider } from '@/context/notifications-context'
+import { UserProvider, useUserContext } from '@/context/user-context'
 import '@/styles/globals.css'
 import '@/styles/globals.scss'
 import { useMediaQuery } from '@mui/material'
@@ -48,18 +49,20 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
             <UserProvider>
               <RouteLoader />
               <Toaster />
-              <div suppressHydrationWarning className={`${poppins.variable} relative flex min-h-screen flex-col justify-between`}>
-                <div>
-                  <main>
-                    <Component {...pageProps} />
-                  </main>
+              <NotificationProvider>
+                <div suppressHydrationWarning className={`${poppins.variable} font-poppins relative flex min-h-screen flex-col justify-between`}>
+                  <div>
+                    <main>
+                      <Component {...pageProps} />
+                    </main>
+                  </div>
+                  {isMobile &&
+                    <Hider routes={['/auth/login', '/auth/login/', '/auth/register', '/auth/register/', '/auth/forgot-password', '/auth/forgot-password/', 'redirect']}>
+                      <BottomNavigation />
+                    </Hider>
+                  }
                 </div>
-                {isMobile &&
-                  <Hider routes={['/auth/login', '/auth/login/', '/auth/register', '/auth/register/', '/auth/forgot-password', '/auth/forgot-password/']}>
-                    <BottomNavigation />
-                  </Hider>
-                }
-              </div>
+              </NotificationProvider>
             </UserProvider>
           </Hydrate>
           <ReactQueryDevtools initialIsOpen={false} />

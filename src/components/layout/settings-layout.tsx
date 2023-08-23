@@ -5,7 +5,7 @@ import { buttonVariants } from '../ui/button';
 
 const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className='h-[calc(100vh-70px)] w-screen'>
+        <div className='h-[calc(100vh)] w-screen'>
             <div className="flex flex-row h-full rounded-md p-2 gap-2">
                 <aside className='w-64 sticky top-0 bg-foreground rounded-md p-2'>
                     <h1 className="text-4xl font-extrabold">Settings</h1>

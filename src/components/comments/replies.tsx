@@ -3,7 +3,7 @@ import DataError from "@/components/app-ui-states/data-error";
 import DataLoading from "@/components/app-ui-states/data-loading";
 import NoData from "@/components/app-ui-states/no-data";
 import LoadMore from "@/components/load-more/load-more";
-import LoadMoreHider from "@/components/ui-utils/lead-more-hider";
+import LoadMoreHider from "@/components/ui-utils/load-more-hider";
 import { InfiniteCommentsType } from "@/types/comment";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";

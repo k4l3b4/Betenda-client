@@ -22,7 +22,7 @@ const violationTypes: CreateReportType[] = [
     },
     {
         report_type: "Hate Speech or Discrimination",
-        report: "Reports related to content promoting racism, sexism, homophobia, or any form of discrimination against individuals or groups.",
+        report: "Reports related to content promoting racism, sexism, or any form of discrimination(in the context of our societal norms) against individuals or groups.",
     },
     {
         report_type: "Inappropriate Content",
@@ -83,42 +83,33 @@ const Report = ({ resource_id, resource_type, children }: { resource_type: strin
     }
 
     return (
-        <div className="px-2">
+        <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        {children}
-                    </PopoverTrigger>
-                    <PopoverContent className="w-52" align="end">
-                        <DialogTrigger asChild>
-                            <Button className="w-full text-start flex" onClick={(event) => event.stopPropagation()} variant="ghost">Report</Button>
-                        </DialogTrigger>
-                    </PopoverContent>
-                </Popover>
-                <DialogContent className="h-auto max-w-[98%] md:max-w-[750px] px-2 sm:px-6 overflow-y-auto">
+                {children}
+                <DialogContent className="h-auto max-w-[98%] md:max-w-[750px] px-2 sm:px-6 overflow-y-auto bg-foreground">
                     <div className="flex items-center justify-center p-2">
-                        <div className="max-w-[650px] w-full h-auto bg-background z-[999] p-4 rounded-md">
+                        <div className="max-w-[650px] w-full h-auto z-[999] p-4 rounded-md bg-foreground">
                             {
                                 step === 1 ? (
                                     <>
                                         <div className="w-full flex flex-col gap-y-2">
                                             {violationTypes?.map((violation) => {
                                                 return (
-                                                    <Button className="w-full text-start h-fit flex items-center justify-between rounded-md p-2" onClick={() => handleMutation(violation)} variant="ghost" key={violation.report_type}>
-                                                        <div>
+                                                    <Button className="w-full text-start h-fit flex items-center justify-between rounded-md p-2 gap-x-2" onClick={() => handleMutation(violation)} variant="ghost" key={violation.report_type}>
+                                                        <div className="w-full">
                                                             <h2>{violation.report_type}</h2>
                                                             <p className="opacity-70">{violation?.report}</p>
                                                         </div>
-                                                        <ArrowRightIcon />
+                                                        <ArrowRightIcon size={25} />
                                                     </Button>
                                                 )
                                             })}
-                                            <Button className="w-full text-start flex h-fit items-center justify-between rounded-md p-2" onClick={() => setStep(2)} variant="ghost">
+                                            <Button className="w-full text-start flex h-fit items-center justify-between rounded-md p-2 gap-x-2" onClick={() => setStep(2)} variant="ghost">
                                                 <div>
                                                     <h2>Other violation</h2>
                                                     <p className="opacity-70">Any other violation you believe that this resource is committing</p>
                                                 </div>
-                                                <ArrowRightIcon />
+                                                <ArrowRightIcon size={25} />
                                             </Button>
                                         </div>
                                     </>
@@ -136,7 +127,7 @@ const Report = ({ resource_id, resource_type, children }: { resource_type: strin
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="report">Additional information<span className="text-xs opacity-70">{`(Optional)`}</span></Label>
-                                                    <Textarea {...register("report")} name="report" className="bg-foreground" placeholder={`Optionally describe how this ${resource_type} has committed a violation`} />
+                                                    <Textarea {...register("report")} name="report" className="bg-foreground" placeholder={`Optionally describe how/where and in what way this ${resource_type} committed the violation`} />
                                                 </div>
                                                 <Button type="submit" onClick={handleDialogClose} className="">Submit report</Button>
                                             </form>
