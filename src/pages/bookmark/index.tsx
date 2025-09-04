@@ -7,7 +7,7 @@ import FeedLayout from "@/components/layout/feed-layout";
 import LoadMore from "@/components/load-more/load-more";
 import Meta from "@/components/meta/meta";
 import PostData from "@/components/post/post-data";
-import LoadMoreHider from "@/components/ui-utils/lead-more-hider";
+import LoadMoreHider from "@/components/ui-utils/load-more-hider";
 import { ArticleType } from "@/types/article";
 import { InfiniteBookMarkType } from "@/types/bookmark";
 import { PostType } from "@/types/post";

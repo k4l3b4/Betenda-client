@@ -1,10 +1,8 @@
+import { createContext, useContext, useState, useEffect } from 'react';
 import { getLanguages } from '@/api/requests/contributions/requests';
 import { LanguageType } from '@/types/contributions';
 import { DataType } from '@/types/global';
 import { useQuery } from '@tanstack/react-query';
-import React, { createContext, useContext, useState } from 'react';
-
-
 
 interface ContributionContextValue {
   sourceLanguages: LanguageType[],
@@ -32,28 +30,31 @@ export const ContributionProvider: React.FC<React.PropsWithChildren<{}>> = ({ ch
   const languages = data?.data as LanguageType[]
   const [sourceLabelValuePairs, setSourceLabelValuePairs] = useState<DataType[]>([]);
   const [targetLabelValuePairs, setTargetLabelValuePairs] = useState<DataType[]>([]);
-  const [sourceLanguages, setSourceLanguages] = useState<LanguageType[]>([]);
-  const [targetLanguages, setTargetLanguages] = useState<LanguageType[]>([]);
+  const [sourceLanguages, setSourceLanguages] = useState<LanguageType[] | []>([]);
+  const [targetLanguages, setTargetLanguages] = useState<LanguageType[] | []>([]);
 
 
   // Transforming the array into label-value pairs on component mount for the select component
-  React.useEffect(() => {
-    setSourceLanguages(languages?.filter((lang) => lang?.language_type === "SOURCE"))
-    setTargetLanguages(languages?.filter((lang) => lang?.language_type === "TARGET"))
-    const sourceTransformedPairs = sourceLanguages?.map((languageType) => ({
-      label: languageType.language,
-      value: languageType.id,
-    }));
-    setSourceLabelValuePairs(sourceTransformedPairs);
+  useEffect(() => {
+    if (languages) {
+      const sourceLanguages = languages.filter((lang) => lang.language_type === "SOURCE");
+      const targetLanguages = languages.filter((lang) => lang.language_type === "TARGET");
 
-    const targetTransformedPairs = targetLanguages?.map((languageType) => ({
-      label: languageType.language,
-      value: languageType.id,
-    }));
-    setTargetLabelValuePairs(targetTransformedPairs);
+      const sourceTransformedPairs = sourceLanguages.map((languageType) => ({
+        label: languageType.language,
+        value: languageType.id,
+      }));
+      setSourceLanguages(sourceLanguages);
+      setSourceLabelValuePairs(sourceTransformedPairs);
 
+      const targetTransformedPairs = targetLanguages.map((languageType) => ({
+        label: languageType.language,
+        value: languageType.id,
+      }));
+      setTargetLanguages(targetLanguages);
+      setTargetLabelValuePairs(targetTransformedPairs);
+    }
   }, [languages]);
-
 
 
   const contextValue: ContributionContextValue = {

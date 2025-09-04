@@ -12,7 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FrownIcon, GhostIcon } from "lucide-react";
 import { Fragment, useEffect, useRef } from "react";
 import Comment from "@/components/comments/comment";
-import LoadMoreHider from "@/components/ui-utils/lead-more-hider";
+import LoadMoreHider from "@/components/ui-utils/load-more-hider";
 import LoadMore from "@/components/load-more/load-more";
 
 
